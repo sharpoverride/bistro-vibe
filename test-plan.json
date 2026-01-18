@@ -1,0 +1,182 @@
+{
+  "projectName": "CulinaryVault",
+  "createdAt": "2026-01-18",
+  "totalTasks": 25,
+  "tasks": [
+    {
+      "id": 1,
+      "category": "Setup",
+      "name": "Create test project structure",
+      "description": "Set up E2E tests with Playwright, integration tests with TestContainers, and organize unit tests",
+      "finished": false
+    },
+    {
+      "id": 2,
+      "category": "Unit Tests - Models",
+      "name": "Recipe model validation tests",
+      "description": "Test Recipe model validation attributes (Title required, Servings range 1-100)",
+      "finished": false
+    },
+    {
+      "id": 3,
+      "category": "Unit Tests - Models",
+      "name": "Ingredient and Instruction model tests",
+      "description": "Test Ingredient and Instruction model validation and ordering",
+      "finished": false
+    },
+    {
+      "id": 4,
+      "category": "Unit Tests - Services",
+      "name": "RecipeService GetRecipesAsync tests",
+      "description": "Test retrieving all recipes sorted by title",
+      "finished": false
+    },
+    {
+      "id": 5,
+      "category": "Unit Tests - Services",
+      "name": "RecipeService GetRecipeByIdAsync tests",
+      "description": "Test getting recipe by ID including null cases",
+      "finished": false
+    },
+    {
+      "id": 6,
+      "category": "Unit Tests - Services",
+      "name": "RecipeService CreateRecipeAsync tests",
+      "description": "Test recipe creation with GUID generation for nested entities",
+      "finished": false
+    },
+    {
+      "id": 7,
+      "category": "Unit Tests - Services",
+      "name": "RecipeService UpdateRecipeAsync tests",
+      "description": "Test recipe update including KeyNotFoundException for non-existent recipes",
+      "finished": false
+    },
+    {
+      "id": 8,
+      "category": "Unit Tests - Services",
+      "name": "RecipeService DeleteRecipeAsync tests",
+      "description": "Test recipe deletion including graceful handling of non-existent recipes",
+      "finished": false
+    },
+    {
+      "id": 9,
+      "category": "Unit Tests - Services",
+      "name": "RecipeService SearchRecipesAsync tests",
+      "description": "Test search across title, description, cuisine type, and ingredients",
+      "finished": false
+    },
+    {
+      "id": 10,
+      "category": "Unit Tests - Services",
+      "name": "RecipeService favorites tests",
+      "description": "Test ToggleFavoriteAsync and GetFavoritesAsync methods",
+      "finished": false
+    },
+    {
+      "id": 11,
+      "category": "Unit Tests - Services",
+      "name": "RecipeService cuisine type tests",
+      "description": "Test GetCuisineTypesAsync and GetRecipesByCuisineAsync methods",
+      "finished": false
+    },
+    {
+      "id": 12,
+      "category": "Unit Tests - Controllers",
+      "name": "RecipesController GET endpoints tests",
+      "description": "Test GetRecipes, GetRecipe, SearchRecipes, GetFavorites, GetCuisineTypes, GetRecipesByCuisine",
+      "finished": false
+    },
+    {
+      "id": 13,
+      "category": "Unit Tests - Controllers",
+      "name": "RecipesController POST/PUT/DELETE tests",
+      "description": "Test CreateRecipe, UpdateRecipe, DeleteRecipe, ToggleFavorite with status codes",
+      "finished": false
+    },
+    {
+      "id": 14,
+      "category": "Unit Tests - Controllers",
+      "name": "UploadController tests",
+      "description": "Test image upload validation (extensions, null file handling)",
+      "finished": false
+    },
+    {
+      "id": 15,
+      "category": "Integration Tests",
+      "name": "Set up TestContainers infrastructure",
+      "description": "Configure TestContainers with SQLite for database integration tests",
+      "finished": false
+    },
+    {
+      "id": 16,
+      "category": "Integration Tests",
+      "name": "Database seeding integration tests",
+      "description": "Test SeedData initialization and database creation",
+      "finished": false
+    },
+    {
+      "id": 17,
+      "category": "Integration Tests",
+      "name": "Full CRUD integration tests",
+      "description": "Test complete recipe lifecycle with real database",
+      "finished": false
+    },
+    {
+      "id": 18,
+      "category": "Integration Tests",
+      "name": "API integration tests",
+      "description": "Test API endpoints with WebApplicationFactory and real database",
+      "finished": false
+    },
+    {
+      "id": 19,
+      "category": "E2E Tests",
+      "name": "Set up Playwright infrastructure",
+      "description": "Configure Playwright with test fixtures and page object models",
+      "finished": false
+    },
+    {
+      "id": 20,
+      "category": "E2E Tests",
+      "name": "Home page E2E tests",
+      "description": "Test recipe listing, search functionality, and navigation",
+      "finished": false
+    },
+    {
+      "id": 21,
+      "category": "E2E Tests",
+      "name": "Create recipe E2E tests",
+      "description": "Test full recipe creation flow with dynamic ingredients/instructions",
+      "finished": false
+    },
+    {
+      "id": 22,
+      "category": "E2E Tests",
+      "name": "Recipe detail E2E tests",
+      "description": "Test recipe viewing, scaling, and favorite toggle",
+      "finished": false
+    },
+    {
+      "id": 23,
+      "category": "E2E Tests",
+      "name": "Focus mode E2E tests",
+      "description": "Test focus mode navigation and step progression",
+      "finished": false
+    },
+    {
+      "id": 24,
+      "category": "E2E Tests",
+      "name": "Edit and delete recipe E2E tests",
+      "description": "Test recipe editing and deletion with confirmation",
+      "finished": false
+    },
+    {
+      "id": 25,
+      "category": "E2E Tests",
+      "name": "Favorites and cuisine filtering E2E tests",
+      "description": "Test favorites page and cuisine category filtering",
+      "finished": false
+    }
+  ]
+}
