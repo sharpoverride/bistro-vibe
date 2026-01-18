@@ -1,0 +1,189 @@
+@inject IJSRuntime JS
+@implements IAsyncDisposable
+
+@if (IsOpen)
+{
+    <div class="fixed inset-0 z-50 bg-primary flex flex-col">
+        <!-- Header -->
+        <div class="flex items-center justify-between p-4 border-b border-white/10">
+            <h2 class="text-white font-bold text-lg">@Recipe?.Title</h2>
+            <button @onclick="Close" @ontouchend="Close"
+                    class="p-2 text-white/70 hover:text-white transition-colors active:scale-95 touch-manipulation">
+                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col items-center justify-center p-8">
+            @if (Recipe?.Instructions != null && Recipe.Instructions.Count > 0)
+            {
+                <div class="text-center max-w-2xl">
+                    <span class="text-accent font-bold text-xl mb-4 block">
+                        Pasul @(CurrentStep + 1) din @Recipe.Instructions.Count
+                    </span>
+                    <p class="text-white text-2xl md:text-4xl leading-relaxed font-light">
+                        @Recipe.Instructions[CurrentStep].Text
+                    </p>
+                </div>
+            }
+        </div>
+        
+        <!-- Navigation -->
+        <div class="p-6 border-t border-white/10">
+            <div class="flex items-center justify-between max-w-xl mx-auto">
+                <button @onclick="PreviousStep" @ontouchend="PreviousStep"
+                        disabled="@(CurrentStep == 0)"
+                        class="px-6 py-3 bg-white/10 text-white rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white/20 transition-colors active:scale-95 touch-manipulation">
+                    <span class="flex items-center gap-2">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                        Înapoi
+                    </span>
+                </button>
+                
+                <!-- Progress Dots -->
+                <div class="flex gap-2">
+                    @if (Recipe?.Instructions != null)
+                    {
+                        @for (int i = 0; i < Recipe.Instructions.Count; i++)
+                        {
+                            var index = i;
+                            <button @onclick="() => GoToStep(index)"
+                                    class="w-3 h-3 rounded-full transition-all @(i == CurrentStep ? "bg-accent scale-125" : "bg-white/30 hover:bg-white/50")">
+                            </button>
+                        }
+                    }
+                </div>
+                
+                <button @onclick="NextStep" @ontouchend="NextStep"
+                        disabled="@(Recipe == null || CurrentStep >= Recipe.Instructions.Count - 1)"
+                        class="px-6 py-3 bg-accent text-white rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-red-600 transition-colors active:scale-95 touch-manipulation">
+                    <span class="flex items-center gap-2">
+                        Următorul
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </span>
+                </button>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public Recipe? Recipe { get; set; }
+
+    [Parameter]
+    public bool IsOpen { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> IsOpenChanged { get; set; }
+
+    private int CurrentStep { get; set; } = 0;
+
+    private DotNetObjectReference<FocusMode>? dotNetRef;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (IsOpen)
+        {
+            CurrentStep = 0;
+            if (dotNetRef == null)
+            {
+                dotNetRef = DotNetObjectReference.Create(this);
+                await JS.InvokeVoidAsync("focusMode.register", dotNetRef);
+            }
+            await RequestWakeLock();
+        }
+        else
+        {
+            if (dotNetRef != null)
+            {
+                try {
+                await JS.InvokeVoidAsync("focusMode.unregister");
+                dotNetRef.Dispose();
+                dotNetRef = null;
+                } catch {}
+            }
+            await ReleaseWakeLock();
+        }
+    }
+
+    [JSInvokable("Close")]
+    public async Task Close()
+    {
+        await ReleaseWakeLock();
+        IsOpen = false;
+        CurrentStep = 0;
+        await IsOpenChanged.InvokeAsync(false);
+    }
+
+    [JSInvokable("NextStep")]
+    public void NextStep()
+    {
+        if (Recipe?.Instructions != null && CurrentStep < Recipe.Instructions.Count - 1)
+        {
+            CurrentStep++;
+            StateHasChanged();
+        }
+    }
+
+    [JSInvokable("PreviousStep")]
+    public void PreviousStep()
+    {
+        if (CurrentStep > 0)
+        {
+            CurrentStep--;
+            StateHasChanged();
+        }
+    }
+
+    private void GoToStep(int step)
+    {
+        if (Recipe?.Instructions != null && step >= 0 && step < Recipe.Instructions.Count)
+        {
+            CurrentStep = step;
+        }
+    }
+
+    private async Task RequestWakeLock()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("wakeLockAPI.requestWakeLock");
+        }
+        catch
+        {
+            // Wake Lock API not supported, ignore
+        }
+    }
+
+    private async Task ReleaseWakeLock()
+    {
+        try
+        {
+            await JS.InvokeVoidAsync("wakeLockAPI.releaseWakeLock");
+        }
+        catch
+        {
+            // Wake Lock API not supported, ignore
+        }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (dotNetRef != null)
+        {
+            try
+            {
+                await JS.InvokeVoidAsync("focusMode.unregister");
+                dotNetRef.Dispose();
+            }
+            catch {}
+        }
+    }
+}

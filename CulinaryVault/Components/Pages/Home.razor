@@ -1,0 +1,119 @@
+@page "/"
+@inject IRecipeService RecipeService
+
+<PageTitle>Acasă - Cămara Culinară</PageTitle>
+
+<div class="space-y-6">
+    <!-- Header -->
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-800 font-title">Cămara Culinară</h1>
+            <p class="text-gray-500 text-sm mt-1">Descoperă rețete delicioase pentru fiecare ocazie</p>
+        </div>
+        
+        <!-- Search -->
+        <div class="search-input-wrapper w-full md:w-72">
+            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text"
+                   @bind="searchTerm"
+                   @bind:event="oninput"
+                   @bind:after="OnSearchInput"
+                   placeholder="Caută rețete..."
+                   class="search-input" />
+        </div>
+    </div>
+    
+    <!-- Recipe Grid -->
+    @if (recipes == null)
+    {
+        <div class="flex items-center justify-center py-16">
+            <div class="animate-spin rounded-full h-10 w-10 border-2 border-gray-200 border-t-accent"></div>
+        </div>
+    }
+    else if (recipes.Count == 0)
+    {
+        <div class="text-center py-16">
+            <div class="w-20 h-20 mx-auto mb-6 rounded-full bg-gray-100 flex items-center justify-center">
+                <svg class="w-10 h-10 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+            </div>
+            <h2 class="text-xl font-bold text-gray-800 mb-2">Nicio rețetă găsită</h2>
+            <p class="text-gray-500 mb-6 text-sm">Începe să creezi rețete delicioase</p>
+            <a href="/recipes/new" class="btn btn-accent">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Adaugă Prima Rețetă
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="recipe-grid">
+            @foreach (var recipe in recipes)
+            {
+                <RecipeCard Recipe="recipe" OnToggleFavorite="HandleToggleFavorite" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Recipe>? recipes;
+    private string searchTerm = "";
+    private System.Timers.Timer? debounceTimer;
+
+    protected override async Task OnInitializedAsync()
+    {
+        recipes = await RecipeService.GetRecipesAsync();
+    }
+
+    private void OnSearchInput()
+    {
+        debounceTimer?.Dispose();
+        debounceTimer = new System.Timers.Timer(300);
+        debounceTimer.Elapsed += async (_, _) =>
+        {
+            debounceTimer?.Dispose();
+            await InvokeAsync(async () =>
+            {
+                if (string.IsNullOrWhiteSpace(searchTerm))
+                {
+                    recipes = await RecipeService.GetRecipesAsync();
+                }
+                else
+                {
+                    recipes = await RecipeService.SearchRecipesAsync(searchTerm);
+                }
+                StateHasChanged();
+            });
+        };
+        debounceTimer.AutoReset = false;
+        debounceTimer.Start();
+    }
+
+    private async Task HandleToggleFavorite(Guid recipeId)
+    {
+        try
+        {
+            await RecipeService.ToggleFavoriteAsync(recipeId);
+            var recipe = recipes?.FirstOrDefault(r => r.Id == recipeId);
+            if (recipe != null)
+            {
+                recipe.IsFavorite = !recipe.IsFavorite;
+            }
+        }
+        catch
+        {
+            // Silent failure for non-critical operation
+        }
+    }
+
+    public void Dispose()
+    {
+        debounceTimer?.Dispose();
+    }
+}

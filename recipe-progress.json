@@ -1,0 +1,28 @@
+{
+  "total_recipes": 190,
+  "processed": 161,
+  "skipped": 6,
+  "last_updated": "2026-01-17T17:30:00Z",
+  "status": "completed",
+  "completed_batches": [
+    "Batch 1-5: (Quiche) Tarta cu praz - Tort de morcovi",
+    "Batch 6: Fasole pargalita - Mamaliga cremoasa cu legume",
+    "Batch 7: Mancare chinezeasca - Papanasi fierti",
+    "Batch 8: Papanasi rapizi - Placinta cu mere si pere",
+    "Batch 9: Porumb fiert - Pulpe de pui in sos gorgonzola",
+    "Batch 10: Pulpe pui marinate - Salata cu cartofi",
+    "Batch 11: Salata de avocado - Somon pe sare (12 recipes)",
+    "Batch 12: Sos Beurre Nantais - Tarta cu pere si alune (20 recipes)",
+    "Batch 13: Tarta cu spanac - Varza cu kaiser (18 recipes - FINAL)"
+  ],
+  "skipped_files": [
+    "Aperitive.md",
+    "Retete de ales din ele.md",
+    "Mancaruri pentru gravide.md",
+    "Untitled note.md",
+    "Blat pizza Jamie Oliver lol.md",
+    "Paine cu chefir.md",
+    "Supa Tom Yum cu creveti.md (empty content)"
+  ],
+  "note": "All recipes have been processed and imported into CulinaryVault application"
+}

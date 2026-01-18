@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cămara Culinară</title>
+    <base href="/" />
+    <link href="css/app.css" rel="stylesheet" />
+    <link href="CulinaryVault.styles.css" rel="stylesheet" />
+    <HeadOutlet @rendermode="RenderModeForPage" />
+</head>
+<body class="bg-gray-50 min-h-screen">
+    <Routes @rendermode="RenderModeForPage" />
+    <script src="_framework/blazor.web.js"></script>
+    <script src="js/wakelock.js"></script>
+    <script src="js/focus-mode.js"></script>
+</body>
+</html>
+
+@code {
+    private IComponentRenderMode? RenderModeForPage => InteractiveServer;
+}

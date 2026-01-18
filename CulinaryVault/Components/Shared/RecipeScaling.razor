@@ -1,0 +1,72 @@
+<div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
+    <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-gray-800">Porții</h3>
+        <div class="flex items-center gap-3">
+            <button @onclick="DecrementServings"
+                    disabled="@(CurrentServings <= 1)"
+                    class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors active:scale-95 touch-manipulation">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                </svg>
+            </button>
+            <span class="w-12 text-center text-xl font-bold text-gray-800">@CurrentServings</span>
+            <button @onclick="IncrementServings"
+                    disabled="@(CurrentServings >= 100)"
+                    class="w-10 h-10 flex items-center justify-center bg-primary text-white rounded-full disabled:opacity-50 disabled:cursor-not-allowed hover:bg-primary/90 transition-colors active:scale-95 touch-manipulation">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+            </button>
+        </div>
+    </div>
+    
+    @if (CurrentServings != BaseServings)
+    {
+        <p class="text-sm text-gray-500 text-center">
+            Rețeta originală: @BaseServings porții
+        </p>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int BaseServings { get; set; }
+
+    [Parameter]
+    public int CurrentServings { get; set; }
+
+    [Parameter]
+    public EventCallback<int> CurrentServingsChanged { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (CurrentServings == 0)
+        {
+            CurrentServings = BaseServings;
+        }
+    }
+
+    private async Task IncrementServings()
+    {
+        if (CurrentServings < 100)
+        {
+            CurrentServings++;
+            await CurrentServingsChanged.InvokeAsync(CurrentServings);
+        }
+    }
+
+    private async Task DecrementServings()
+    {
+        if (CurrentServings > 1)
+        {
+            CurrentServings--;
+            await CurrentServingsChanged.InvokeAsync(CurrentServings);
+        }
+    }
+
+    public double GetScaledAmount(double originalAmount)
+    {
+        if (BaseServings == 0) return originalAmount;
+        return Math.Round(originalAmount * CurrentServings / BaseServings, 2);
+    }
+}

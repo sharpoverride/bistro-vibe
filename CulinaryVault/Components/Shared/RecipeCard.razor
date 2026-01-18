@@ -1,0 +1,95 @@
+@inject NavigationManager Navigation
+
+<div class="recipe-card group">
+    <!-- Image Container -->
+    <a href="/recipes/@Recipe.Id" class="recipe-card-image block">
+        @if (!string.IsNullOrEmpty(Recipe.ImageUrl))
+        {
+            <img src="@Recipe.ImageUrl" alt="@Recipe.Title" loading="lazy" />
+        }
+        else
+        {
+            <div class="recipe-card-placeholder">
+                <svg fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z"/>
+                </svg>
+            </div>
+        }
+        
+        <!-- Cuisine Badge -->
+        <div class="recipe-card-badge">
+            @Recipe.CuisineType
+        </div>
+        
+        <!-- Favorite Button -->
+        <button @onclick="HandleFavoriteClick" @onclick:stopPropagation="true"
+                @onclick:preventDefault="true"
+                class="recipe-card-favorite @(Recipe.IsFavorite ? "is-favorite" : "")"
+                title="@(Recipe.IsFavorite ? "Elimină din favorite" : "Adaugă la favorite")">
+            @if (Recipe.IsFavorite)
+            {
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+                </svg>
+            }
+            else
+            {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                </svg>
+            }
+        </button>
+        
+        <!-- Hover Overlay -->
+        <div class="recipe-card-overlay">
+            <span>Vezi Rețeta</span>
+        </div>
+    </a>
+    
+    <!-- Content -->
+    <a href="/recipes/@Recipe.Id" class="recipe-card-content block">
+        <h3 class="recipe-card-title">@Recipe.Title</h3>
+        <p class="recipe-card-description">@Recipe.Description</p>
+        
+        <!-- Meta Info -->
+        <div class="recipe-card-meta">
+            <div class="recipe-card-meta-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+                <span>@FormatTotalTime()</span>
+            </div>
+            <div class="recipe-card-meta-item">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+                <span>@Recipe.Servings porții</span>
+            </div>
+        </div>
+    </a>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public Recipe Recipe { get; set; } = default!;
+
+    [Parameter]
+    public EventCallback<Guid> OnToggleFavorite { get; set; }
+
+    private async Task HandleFavoriteClick()
+    {
+        await OnToggleFavorite.InvokeAsync(Recipe.Id);
+    }
+
+    private string FormatTotalTime()
+    {
+        var total = Recipe.PrepTime + Recipe.CookTime;
+        if (total.TotalHours >= 1)
+        {
+            var hours = (int)total.TotalHours;
+            var mins = total.Minutes;
+            return mins > 0 ? $"{hours}h {mins}min" : $"{hours}h";
+        }
+        return $"{(int)total.TotalMinutes} min";
+    }
+}

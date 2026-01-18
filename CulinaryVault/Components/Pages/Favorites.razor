@@ -1,0 +1,65 @@
+@page "/favorites"
+@inject IRecipeService RecipeService
+
+<PageTitle>Favorite - Cămara Culinară</PageTitle>
+
+<div class="space-y-6">
+    <div>
+        <h1 class="text-3xl font-bold text-gray-800 font-title">Rețete Favorite</h1>
+        <p class="text-gray-500 mt-1">Rețetele tale preferate, mereu la îndemână</p>
+    </div>
+    
+    @if (recipes == null)
+    {
+        <div class="flex items-center justify-center py-12">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+        </div>
+    }
+    else if (recipes.Count == 0)
+    {
+        <div class="text-center py-16">
+            <svg class="w-24 h-24 text-gray-300 mx-auto mb-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+            </svg>
+            <h2 class="text-2xl font-bold text-gray-800 mb-2">Nicio rețetă favorită</h2>
+            <p class="text-gray-500 mb-6">Adaugă rețete la favorite pentru a le găsi mai ușor</p>
+            <a href="/" class="inline-flex items-center gap-2 px-6 py-3 bg-accent text-white rounded-xl hover:bg-red-600 transition-colors">
+                Explorează Rețetele
+            </a>
+        </div>
+    }
+    else
+    {
+        <MasonryGrid>
+            @foreach (var recipe in recipes)
+            {
+                <div class="break-inside-avoid mb-6">
+                    <RecipeCard Recipe="recipe" OnToggleFavorite="HandleToggleFavorite" />
+                </div>
+            }
+        </MasonryGrid>
+    }
+</div>
+
+@code {
+    private List<Recipe>? recipes;
+
+    protected override async Task OnInitializedAsync()
+    {
+        recipes = await RecipeService.GetFavoritesAsync();
+    }
+
+    private async Task HandleToggleFavorite(Guid recipeId)
+    {
+        try
+        {
+            await RecipeService.ToggleFavoriteAsync(recipeId);
+            // Remove from list since it's no longer a favorite
+            recipes = recipes?.Where(r => r.Id != recipeId).ToList();
+        }
+        catch
+        {
+            // Silent failure
+        }
+    }
+}
