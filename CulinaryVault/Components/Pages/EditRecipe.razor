@@ -102,8 +102,6 @@ else
                 </div>
             </div>
             
-            </div>
-            
             <!-- Ingredients -->
             <div class="bg-white rounded-2xl p-6 border border-gray-100">
                 <div class="flex items-center justify-between mb-4">
@@ -113,27 +111,31 @@ else
                     </button>
                 </div>
                 
-                <div class="space-y-3">
+                <div class="space-y-2">
                     @for (int i = 0; i < recipe.Ingredients.Count; i++)
                     {
                         var index = i;
-                        <div class="flex items-center gap-2 p-2 bg-slate-50 rounded-lg border border-transparent hover:border-gray-200 transition-colors group"
+                        <div class="ingredient-row group"
                              draggable="true"
                              @ondragstart="@(() => HandleIngredientDragStart(index))"
                              @ondrop="@(() => HandleIngredientDrop(index))"
                              @ondragover:preventDefault>
                             
-                            <div class="cursor-grab active:cursor-grabbing text-gray-400 hover:text-accent p-1">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <div class="drag-handle">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
                                 </svg>
                             </div>
 
-                            <input type="number" @bind="recipe.Ingredients[index].Amount" step="0.1" min="0" class="w-20 form-input" placeholder="Cant." />
-                            <input type="text" @bind="recipe.Ingredients[index].Unit" class="w-24 form-input" placeholder="Unitate" />
-                            <input type="text" @bind="recipe.Ingredients[index].Name" class="flex-1 form-input min-w-0" placeholder="Ingredient" />
+                            <input type="number" @bind="recipe.Ingredients[index].Amount" step="0.1" min="0" 
+                                   class="form-input text-center" placeholder="Cant." />
+                            <input type="text" @bind="recipe.Ingredients[index].Unit" 
+                                   class="form-input" placeholder="Unitate" />
+                            <input type="text" @bind="recipe.Ingredients[index].Name" 
+                                   class="form-input ingredient-name" placeholder="Nume ingredient" />
                             
-                            <button type="button" @onclick="() => RemoveIngredient(index)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors opacity-50 group-hover:opacity-100">
+                            <button type="button" @onclick="() => RemoveIngredient(index)" 
+                                    class="delete-btn">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
@@ -226,6 +228,56 @@ else
         outline: none;
         border-color: #E74C3C;
         box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+    }
+    
+    .ingredient-row {
+        display: grid;
+        grid-template-columns: auto 70px 90px 1fr auto;
+        gap: 0.5rem;
+        align-items: center;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 0.75rem;
+        border: 1px solid transparent;
+        transition: border-color 0.2s;
+    }
+    
+    .ingredient-row:hover {
+        border-color: #e5e7eb;
+    }
+    
+    .ingredient-row .drag-handle {
+        cursor: grab;
+        color: #9ca3af;
+        padding: 0.25rem;
+    }
+    
+    .ingredient-row .drag-handle:hover {
+        color: #E74C3C;
+    }
+    
+    .ingredient-row .drag-handle:active {
+        cursor: grabbing;
+    }
+    
+    .ingredient-row .delete-btn {
+        padding: 0.5rem;
+        color: #ef4444;
+        border-radius: 0.5rem;
+        opacity: 0.5;
+        transition: all 0.2s;
+    }
+    
+    .ingredient-row:hover .delete-btn {
+        opacity: 1;
+    }
+    
+    .ingredient-row .delete-btn:hover {
+        background: #fef2f2;
+    }
+    
+    .ingredient-row .ingredient-name {
+        min-width: 0;
     }
 </style>
 
