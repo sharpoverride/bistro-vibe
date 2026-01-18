@@ -12,19 +12,24 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
     {
         builder.ConfigureServices(services =>
         {
-            // Remove the existing DbContext registration
-            var descriptor = services.SingleOrDefault(
-                d => d.ServiceType == typeof(DbContextOptions<CulinaryVaultDbContext>));
+            // Remove all DbContext registrations
+            var descriptorsToRemove = services
+                .Where(d => d.ServiceType == typeof(DbContextOptions<CulinaryVaultDbContext>) ||
+                           d.ServiceType == typeof(CulinaryVaultDbContext) ||
+                           d.ServiceType.FullName?.Contains("EntityFrameworkCore") == true)
+                .ToList();
 
-            if (descriptor != null)
+            foreach (var descriptor in descriptorsToRemove)
             {
                 services.Remove(descriptor);
             }
 
-            // Add in-memory database for testing
+            // Add SQLite in-memory database for testing
+            var connectionString = $"DataSource=file:test_{Guid.NewGuid():N}?mode=memory&cache=shared";
+
             services.AddDbContext<CulinaryVaultDbContext>(options =>
             {
-                options.UseInMemoryDatabase($"TestDb_{Guid.NewGuid()}");
+                options.UseSqlite(connectionString);
             });
 
             // Build the service provider
@@ -33,6 +38,7 @@ public class CustomWebApplicationFactory<TProgram> : WebApplicationFactory<TProg
             // Create the database and apply migrations
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<CulinaryVaultDbContext>();
+            db.Database.OpenConnection();
             db.Database.EnsureCreated();
         });
 

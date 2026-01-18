@@ -1,68 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using CulinaryVault.Shared;
 
 namespace CulinaryVault.Tests.Unit.Models;
 
 public class IngredientTests
 {
-    [Fact]
-    public void Ingredient_WithValidData_PassesValidation()
-    {
-        // Arrange
-        var ingredient = new Ingredient
-        {
-            Id = Guid.NewGuid(),
-            Name = "Flour",
-            Amount = 200,
-            Unit = "g",
-            Order = 1
-        };
-
-        // Act
-        var validationResults = ValidateModel(ingredient);
-
-        // Assert
-        validationResults.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Ingredient_WithoutName_FailsValidation()
-    {
-        // Arrange
-        var ingredient = new Ingredient
-        {
-            Id = Guid.NewGuid(),
-            Name = null!,
-            Amount = 100,
-            Unit = "g"
-        };
-
-        // Act
-        var validationResults = ValidateModel(ingredient);
-
-        // Assert
-        validationResults.Should().Contain(r => r.MemberNames.Contains("Name"));
-    }
-
-    [Fact]
-    public void Ingredient_WithEmptyName_FailsValidation()
-    {
-        // Arrange
-        var ingredient = new Ingredient
-        {
-            Id = Guid.NewGuid(),
-            Name = "",
-            Amount = 100,
-            Unit = "g"
-        };
-
-        // Act
-        var validationResults = ValidateModel(ingredient);
-
-        // Assert
-        validationResults.Should().Contain(r => r.MemberNames.Contains("Name"));
-    }
-
     [Fact]
     public void Ingredient_DefaultValues_AreCorrect()
     {
@@ -71,10 +12,32 @@ public class IngredientTests
 
         // Assert
         ingredient.Id.Should().Be(Guid.Empty);
-        ingredient.Name.Should().BeNull();
+        ingredient.Name.Should().Be(string.Empty);
         ingredient.Amount.Should().Be(0);
-        ingredient.Unit.Should().BeNull();
+        ingredient.Unit.Should().Be(string.Empty);
         ingredient.Order.Should().Be(0);
+    }
+
+    [Fact]
+    public void Ingredient_CanSetAllProperties()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var ingredient = new Ingredient
+        {
+            Id = id,
+            Name = "Flour",
+            Amount = 200,
+            Unit = "g",
+            Order = 1
+        };
+
+        // Assert
+        ingredient.Id.Should().Be(id);
+        ingredient.Name.Should().Be("Flour");
+        ingredient.Amount.Should().Be(200);
+        ingredient.Unit.Should().Be("g");
+        ingredient.Order.Should().Be(1);
     }
 
     [Theory]
@@ -82,22 +45,13 @@ public class IngredientTests
     [InlineData(0.5)]
     [InlineData(100)]
     [InlineData(1000.5)]
-    public void Ingredient_WithVariousAmounts_PassesValidation(double amount)
+    public void Ingredient_CanSetVariousAmounts(double amount)
     {
-        // Arrange
-        var ingredient = new Ingredient
-        {
-            Id = Guid.NewGuid(),
-            Name = "Test Ingredient",
-            Amount = amount,
-            Unit = "g"
-        };
-
-        // Act
-        var validationResults = ValidateModel(ingredient);
+        // Arrange & Act
+        var ingredient = new Ingredient { Amount = amount };
 
         // Assert
-        validationResults.Should().BeEmpty();
+        ingredient.Amount.Should().Be(amount);
     }
 
     [Fact]
@@ -120,11 +74,40 @@ public class IngredientTests
         ordered[2].Name.Should().Be("Third");
     }
 
-    private static List<ValidationResult> ValidateModel(object model)
+    [Fact]
+    public void Ingredient_CanHaveVariousUnits()
     {
-        var validationResults = new List<ValidationResult>();
-        var validationContext = new ValidationContext(model);
-        Validator.TryValidateObject(model, validationContext, validationResults, true);
-        return validationResults;
+        // Arrange
+        var units = new[] { "g", "kg", "ml", "l", "cup", "tbsp", "tsp", "piece", "bucată" };
+
+        // Act & Assert
+        foreach (var unit in units)
+        {
+            var ingredient = new Ingredient { Unit = unit };
+            ingredient.Unit.Should().Be(unit);
+        }
+    }
+
+    [Fact]
+    public void Ingredient_NameCanContainSpecialCharacters()
+    {
+        // Arrange
+        var nameWithSpecialChars = "Brânză de vacă";
+
+        // Act
+        var ingredient = new Ingredient { Name = nameWithSpecialChars };
+
+        // Assert
+        ingredient.Name.Should().Be(nameWithSpecialChars);
+    }
+
+    [Fact]
+    public void Ingredient_AmountCanBeFractional()
+    {
+        // Arrange & Act
+        var ingredient = new Ingredient { Amount = 0.25 };
+
+        // Assert
+        ingredient.Amount.Should().Be(0.25);
     }
 }

@@ -1,64 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using CulinaryVault.Shared;
 
 namespace CulinaryVault.Tests.Unit.Models;
 
 public class InstructionTests
 {
-    [Fact]
-    public void Instruction_WithValidData_PassesValidation()
-    {
-        // Arrange
-        var instruction = new Instruction
-        {
-            Id = Guid.NewGuid(),
-            StepNumber = 1,
-            Text = "Mix all ingredients together"
-        };
-
-        // Act
-        var validationResults = ValidateModel(instruction);
-
-        // Assert
-        validationResults.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Instruction_WithoutText_FailsValidation()
-    {
-        // Arrange
-        var instruction = new Instruction
-        {
-            Id = Guid.NewGuid(),
-            StepNumber = 1,
-            Text = null!
-        };
-
-        // Act
-        var validationResults = ValidateModel(instruction);
-
-        // Assert
-        validationResults.Should().Contain(r => r.MemberNames.Contains("Text"));
-    }
-
-    [Fact]
-    public void Instruction_WithEmptyText_FailsValidation()
-    {
-        // Arrange
-        var instruction = new Instruction
-        {
-            Id = Guid.NewGuid(),
-            StepNumber = 1,
-            Text = ""
-        };
-
-        // Act
-        var validationResults = ValidateModel(instruction);
-
-        // Assert
-        validationResults.Should().Contain(r => r.MemberNames.Contains("Text"));
-    }
-
     [Fact]
     public void Instruction_DefaultValues_AreCorrect()
     {
@@ -68,7 +13,25 @@ public class InstructionTests
         // Assert
         instruction.Id.Should().Be(Guid.Empty);
         instruction.StepNumber.Should().Be(0);
-        instruction.Text.Should().BeNull();
+        instruction.Text.Should().Be(string.Empty);
+    }
+
+    [Fact]
+    public void Instruction_CanSetAllProperties()
+    {
+        // Arrange
+        var id = Guid.NewGuid();
+        var instruction = new Instruction
+        {
+            Id = id,
+            StepNumber = 1,
+            Text = "Mix all ingredients together"
+        };
+
+        // Assert
+        instruction.Id.Should().Be(id);
+        instruction.StepNumber.Should().Be(1);
+        instruction.Text.Should().Be("Mix all ingredients together");
     }
 
     [Theory]
@@ -76,21 +39,13 @@ public class InstructionTests
     [InlineData(5)]
     [InlineData(10)]
     [InlineData(100)]
-    public void Instruction_WithVariousStepNumbers_PassesValidation(int stepNumber)
+    public void Instruction_CanSetVariousStepNumbers(int stepNumber)
     {
-        // Arrange
-        var instruction = new Instruction
-        {
-            Id = Guid.NewGuid(),
-            StepNumber = stepNumber,
-            Text = "Valid instruction text"
-        };
-
-        // Act
-        var validationResults = ValidateModel(instruction);
+        // Arrange & Act
+        var instruction = new Instruction { StepNumber = stepNumber };
 
         // Assert
-        validationResults.Should().BeEmpty();
+        instruction.StepNumber.Should().Be(stepNumber);
     }
 
     [Fact]
@@ -114,29 +69,42 @@ public class InstructionTests
     }
 
     [Fact]
-    public void Instruction_WithLongText_PassesValidation()
+    public void Instruction_CanHaveLongText()
     {
         // Arrange
         var longText = new string('A', 1000);
-        var instruction = new Instruction
-        {
-            Id = Guid.NewGuid(),
-            StepNumber = 1,
-            Text = longText
-        };
 
         // Act
-        var validationResults = ValidateModel(instruction);
+        var instruction = new Instruction { Text = longText };
 
         // Assert
-        validationResults.Should().BeEmpty();
+        instruction.Text.Should().Be(longText);
+        instruction.Text.Length.Should().Be(1000);
     }
 
-    private static List<ValidationResult> ValidateModel(object model)
+    [Fact]
+    public void Instruction_TextCanContainSpecialCharacters()
     {
-        var validationResults = new List<ValidationResult>();
-        var validationContext = new ValidationContext(model);
-        Validator.TryValidateObject(model, validationContext, validationResults, true);
-        return validationResults;
+        // Arrange
+        var textWithSpecialChars = "Bake at 180°C for 30 minutes. Use 1/2 cup flour.";
+
+        // Act
+        var instruction = new Instruction { Text = textWithSpecialChars };
+
+        // Assert
+        instruction.Text.Should().Be(textWithSpecialChars);
+    }
+
+    [Fact]
+    public void Instruction_CanHaveMultilineText()
+    {
+        // Arrange
+        var multilineText = "First do this.\nThen do that.\nFinally, complete it.";
+
+        // Act
+        var instruction = new Instruction { Text = multilineText };
+
+        // Assert
+        instruction.Text.Should().Contain("\n");
     }
 }

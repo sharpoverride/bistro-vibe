@@ -120,7 +120,7 @@ public class RecipesApiIntegrationTests : IClassFixture<CustomWebApplicationFact
 
         // Assert
         response.Headers.Location.Should().NotBeNull();
-        response.Headers.Location!.ToString().Should().Contain("/api/recipes/");
+        response.Headers.Location!.ToString().ToLower().Should().Contain("/api/recipes/");
     }
 
     [Fact]

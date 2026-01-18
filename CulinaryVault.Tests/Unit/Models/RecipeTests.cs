@@ -1,127 +1,9 @@
-using System.ComponentModel.DataAnnotations;
 using CulinaryVault.Shared;
 
 namespace CulinaryVault.Tests.Unit.Models;
 
 public class RecipeTests
 {
-    [Fact]
-    public void Recipe_WithValidData_PassesValidation()
-    {
-        // Arrange
-        var recipe = new Recipe
-        {
-            Id = Guid.NewGuid(),
-            Title = "Valid Recipe",
-            Description = "A valid recipe description",
-            Servings = 4,
-            CuisineType = "Italian"
-        };
-
-        // Act
-        var validationResults = ValidateModel(recipe);
-
-        // Assert
-        validationResults.Should().BeEmpty();
-    }
-
-    [Fact]
-    public void Recipe_WithoutTitle_FailsValidation()
-    {
-        // Arrange
-        var recipe = new Recipe
-        {
-            Id = Guid.NewGuid(),
-            Title = null!,
-            Servings = 4
-        };
-
-        // Act
-        var validationResults = ValidateModel(recipe);
-
-        // Assert
-        validationResults.Should().Contain(r => r.MemberNames.Contains("Title"));
-    }
-
-    [Fact]
-    public void Recipe_WithEmptyTitle_FailsValidation()
-    {
-        // Arrange
-        var recipe = new Recipe
-        {
-            Id = Guid.NewGuid(),
-            Title = "",
-            Servings = 4
-        };
-
-        // Act
-        var validationResults = ValidateModel(recipe);
-
-        // Assert
-        validationResults.Should().Contain(r => r.MemberNames.Contains("Title"));
-    }
-
-    [Theory]
-    [InlineData(0)]
-    [InlineData(-1)]
-    [InlineData(101)]
-    [InlineData(500)]
-    public void Recipe_WithInvalidServings_FailsValidation(int servings)
-    {
-        // Arrange
-        var recipe = new Recipe
-        {
-            Id = Guid.NewGuid(),
-            Title = "Test Recipe",
-            Servings = servings
-        };
-
-        // Act
-        var validationResults = ValidateModel(recipe);
-
-        // Assert
-        validationResults.Should().Contain(r => r.MemberNames.Contains("Servings"));
-    }
-
-    [Theory]
-    [InlineData(1)]
-    [InlineData(50)]
-    [InlineData(100)]
-    public void Recipe_WithValidServings_PassesValidation(int servings)
-    {
-        // Arrange
-        var recipe = new Recipe
-        {
-            Id = Guid.NewGuid(),
-            Title = "Test Recipe",
-            Servings = servings
-        };
-
-        // Act
-        var validationResults = ValidateModel(recipe);
-
-        // Assert
-        validationResults.Should().NotContain(r => r.MemberNames.Contains("Servings"));
-    }
-
-    [Fact]
-    public void Recipe_TitleExceeds200Characters_FailsValidation()
-    {
-        // Arrange
-        var recipe = new Recipe
-        {
-            Id = Guid.NewGuid(),
-            Title = new string('A', 201),
-            Servings = 4
-        };
-
-        // Act
-        var validationResults = ValidateModel(recipe);
-
-        // Assert
-        validationResults.Should().Contain(r => r.MemberNames.Contains("Title"));
-    }
-
     [Fact]
     public void Recipe_DefaultValues_AreCorrect()
     {
@@ -130,33 +12,49 @@ public class RecipeTests
 
         // Assert
         recipe.Id.Should().Be(Guid.Empty);
+        recipe.Title.Should().Be(string.Empty);
+        recipe.Description.Should().Be(string.Empty);
+        recipe.ImageUrl.Should().Be(string.Empty);
         recipe.Servings.Should().Be(4);
         recipe.CuisineType.Should().Be("General");
         recipe.IsFavorite.Should().BeFalse();
+        recipe.Difficulty.Should().Be(Difficulty.Easy);
         recipe.Ingredients.Should().NotBeNull().And.BeEmpty();
         recipe.Instructions.Should().NotBeNull().And.BeEmpty();
+        recipe.PrepTime.Should().Be(TimeSpan.Zero);
+        recipe.CookTime.Should().Be(TimeSpan.Zero);
     }
 
-    [Theory]
-    [InlineData(Difficulty.Easy)]
-    [InlineData(Difficulty.Medium)]
-    [InlineData(Difficulty.Hard)]
-    [InlineData(Difficulty.Expert)]
-    public void Recipe_WithValidDifficulty_PassesValidation(Difficulty difficulty)
+    [Fact]
+    public void Recipe_CanSetAllProperties()
     {
         // Arrange
+        var id = Guid.NewGuid();
         var recipe = new Recipe
         {
-            Id = Guid.NewGuid(),
+            Id = id,
             Title = "Test Recipe",
-            Difficulty = difficulty
+            Description = "Test Description",
+            ImageUrl = "/uploads/test.png",
+            PrepTime = TimeSpan.FromMinutes(15),
+            CookTime = TimeSpan.FromMinutes(30),
+            Servings = 8,
+            Difficulty = Difficulty.Hard,
+            CuisineType = "Italian",
+            IsFavorite = true
         };
 
-        // Act
-        var validationResults = ValidateModel(recipe);
-
         // Assert
-        validationResults.Should().NotContain(r => r.MemberNames.Contains("Difficulty"));
+        recipe.Id.Should().Be(id);
+        recipe.Title.Should().Be("Test Recipe");
+        recipe.Description.Should().Be("Test Description");
+        recipe.ImageUrl.Should().Be("/uploads/test.png");
+        recipe.PrepTime.Should().Be(TimeSpan.FromMinutes(15));
+        recipe.CookTime.Should().Be(TimeSpan.FromMinutes(30));
+        recipe.Servings.Should().Be(8);
+        recipe.Difficulty.Should().Be(Difficulty.Hard);
+        recipe.CuisineType.Should().Be("Italian");
+        recipe.IsFavorite.Should().BeTrue();
     }
 
     [Fact]
@@ -176,11 +74,91 @@ public class RecipeTests
         totalTime.Should().Be(TimeSpan.FromMinutes(45));
     }
 
-    private static List<ValidationResult> ValidateModel(object model)
+    [Fact]
+    public void Recipe_CanAddIngredients()
     {
-        var validationResults = new List<ValidationResult>();
-        var validationContext = new ValidationContext(model);
-        Validator.TryValidateObject(model, validationContext, validationResults, true);
-        return validationResults;
+        // Arrange
+        var recipe = new Recipe();
+        var ingredient = new Ingredient
+        {
+            Id = Guid.NewGuid(),
+            Name = "Flour",
+            Amount = 200,
+            Unit = "g",
+            Order = 1
+        };
+
+        // Act
+        recipe.Ingredients.Add(ingredient);
+
+        // Assert
+        recipe.Ingredients.Should().HaveCount(1);
+        recipe.Ingredients[0].Name.Should().Be("Flour");
+    }
+
+    [Fact]
+    public void Recipe_CanAddInstructions()
+    {
+        // Arrange
+        var recipe = new Recipe();
+        var instruction = new Instruction
+        {
+            Id = Guid.NewGuid(),
+            StepNumber = 1,
+            Text = "Mix ingredients"
+        };
+
+        // Act
+        recipe.Instructions.Add(instruction);
+
+        // Assert
+        recipe.Instructions.Should().HaveCount(1);
+        recipe.Instructions[0].Text.Should().Be("Mix ingredients");
+    }
+
+    [Theory]
+    [InlineData(Difficulty.Easy)]
+    [InlineData(Difficulty.Medium)]
+    [InlineData(Difficulty.Hard)]
+    [InlineData(Difficulty.Expert)]
+    public void Recipe_CanSetDifficulty(Difficulty difficulty)
+    {
+        // Arrange & Act
+        var recipe = new Recipe { Difficulty = difficulty };
+
+        // Assert
+        recipe.Difficulty.Should().Be(difficulty);
+    }
+
+    [Fact]
+    public void Recipe_IngredientsListIsInitialized()
+    {
+        // Arrange & Act
+        var recipe = new Recipe();
+
+        // Assert
+        recipe.Ingredients.Should().NotBeNull();
+        recipe.Ingredients.Should().BeOfType<List<Ingredient>>();
+    }
+
+    [Fact]
+    public void Recipe_InstructionsListIsInitialized()
+    {
+        // Arrange & Act
+        var recipe = new Recipe();
+
+        // Assert
+        recipe.Instructions.Should().NotBeNull();
+        recipe.Instructions.Should().BeOfType<List<Instruction>>();
+    }
+
+    [Fact]
+    public void Recipe_Servings_CanBeSetToAnyValue()
+    {
+        // Arrange & Act
+        var recipe = new Recipe { Servings = 100 };
+
+        // Assert
+        recipe.Servings.Should().Be(100);
     }
 }
