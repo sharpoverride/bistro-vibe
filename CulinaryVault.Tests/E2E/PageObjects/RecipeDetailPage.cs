@@ -11,17 +11,18 @@ public class RecipeDetailPage
         _page = page;
     }
 
-    // Selectors
-    private ILocator Title => _page.Locator("h1").First;
-    private ILocator Description => _page.Locator("[data-testid='recipe-description'], .description, p").First;
-    private ILocator FavoriteButton => _page.Locator("button:has(svg[data-lucide='heart']), button:has(.lucide-heart)").First;
-    private ILocator EditButton => _page.Locator("a[href*='/edit'], button:has-text('Editează')").First;
-    private ILocator IngredientsList => _page.Locator("[data-testid='ingredients'], .ingredients, ul").First;
-    private ILocator InstructionsList => _page.Locator("[data-testid='instructions'], .instructions, ol").First;
-    private ILocator ServingsDisplay => _page.Locator("[data-testid='servings'], .servings");
-    private ILocator IncreaseServingsButton => _page.Locator("button:has-text('+')").First;
-    private ILocator DecreaseServingsButton => _page.Locator("button:has-text('-')").First;
-    private ILocator FocusModeButton => _page.Locator("button:has-text('Mod Focus'), button:has-text('Focus')").First;
+    // Selectors using data-testid
+    private ILocator Title => _page.Locator("[data-testid='recipe-title']");
+    private ILocator Description => _page.Locator("[data-testid='recipe-description']");
+    private ILocator FavoriteButton => _page.Locator("[data-testid='favorite-button']");
+    private ILocator EditButton => _page.Locator("[data-testid='edit-button']");
+    private ILocator IngredientsList => _page.Locator("[data-testid='ingredients-list']");
+    private ILocator InstructionsList => _page.Locator("[data-testid='instructions-list']");
+    private ILocator ServingsSection => _page.Locator("[data-testid='servings-section']");
+    private ILocator ServingsCount => _page.Locator("[data-testid='servings-count']");
+    private ILocator IncreaseServingsButton => _page.Locator("[data-testid='increase-servings']");
+    private ILocator DecreaseServingsButton => _page.Locator("[data-testid='decrease-servings']");
+    private ILocator FocusModeButton => _page.Locator("[data-testid='focus-mode-button']");
 
     public async Task NavigateAsync(Guid recipeId)
     {
@@ -48,10 +49,9 @@ public class RecipeDetailPage
 
     public async Task<bool> IsFavoriteAsync()
     {
-        var button = FavoriteButton;
-        var svg = button.Locator("svg").First;
+        var svg = FavoriteButton.Locator("svg").First;
         var fill = await svg.GetAttributeAsync("fill");
-        return fill != "none" && !string.IsNullOrEmpty(fill);
+        return fill == "currentColor";
     }
 
     public async Task ClickEditAsync()
@@ -85,6 +85,9 @@ public class RecipeDetailPage
     {
         for (int i = 0; i < times; i++)
         {
+            // Check if button is enabled before clicking
+            var isEnabled = await DecreaseServingsButton.IsEnabledAsync();
+            if (!isEnabled) break;
             await DecreaseServingsButton.ClickAsync();
             await _page.WaitForTimeoutAsync(100);
         }
@@ -92,8 +95,7 @@ public class RecipeDetailPage
 
     public async Task<int> GetCurrentServingsAsync()
     {
-        var text = await ServingsDisplay.TextContentAsync() ?? "0";
-        // Extract number from text like "4 porții" or just "4"
+        var text = await ServingsCount.TextContentAsync() ?? "0";
         var match = System.Text.RegularExpressions.Regex.Match(text, @"\d+");
         return match.Success ? int.Parse(match.Value) : 0;
     }

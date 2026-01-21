@@ -1,8 +1,8 @@
 @inject NavigationManager Navigation
 
-<div class="recipe-card group">
+<div class="recipe-card group" data-testid="recipe-card">
     <!-- Image Container -->
-    <a href="/recipes/@Recipe.Id" class="recipe-card-image block">
+    <a href="/recipes/@Recipe.Id" class="recipe-card-image block" data-testid="recipe-card-link">
         @if (!string.IsNullOrEmpty(Recipe.ImageUrl))
         {
             <img src="@Recipe.ImageUrl" alt="@Recipe.Title" loading="lazy" />
@@ -15,17 +15,18 @@
                 </svg>
             </div>
         }
-        
+
         <!-- Cuisine Badge -->
-        <div class="recipe-card-badge">
+        <div class="recipe-card-badge" data-testid="recipe-card-cuisine">
             @Recipe.CuisineType
         </div>
-        
+
         <!-- Favorite Button -->
         <button @onclick="HandleFavoriteClick" @onclick:stopPropagation="true"
                 @onclick:preventDefault="true"
                 class="recipe-card-favorite @(Recipe.IsFavorite ? "is-favorite" : "")"
-                title="@(Recipe.IsFavorite ? "Elimină din favorite" : "Adaugă la favorite")">
+                title="@(Recipe.IsFavorite ? "Elimină din favorite" : "Adaugă la favorite")"
+                data-testid="recipe-card-favorite">
             @if (Recipe.IsFavorite)
             {
                 <svg viewBox="0 0 24 24" fill="currentColor">
@@ -39,27 +40,27 @@
                 </svg>
             }
         </button>
-        
+
         <!-- Hover Overlay -->
         <div class="recipe-card-overlay">
             <span>Vezi Rețeta</span>
         </div>
     </a>
-    
+
     <!-- Content -->
     <a href="/recipes/@Recipe.Id" class="recipe-card-content block">
-        <h3 class="recipe-card-title">@Recipe.Title</h3>
-        <p class="recipe-card-description">@Recipe.Description</p>
-        
+        <h3 class="recipe-card-title" data-testid="recipe-card-title">@Recipe.Title</h3>
+        <p class="recipe-card-description" data-testid="recipe-card-description">@Recipe.Description</p>
+
         <!-- Meta Info -->
         <div class="recipe-card-meta">
-            <div class="recipe-card-meta-item">
+            <div class="recipe-card-meta-item" data-testid="recipe-card-time">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 <span>@FormatTotalTime()</span>
             </div>
-            <div class="recipe-card-meta-item">
+            <div class="recipe-card-meta-item" data-testid="recipe-card-servings">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
                 </svg>

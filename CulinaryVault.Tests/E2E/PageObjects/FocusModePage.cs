@@ -11,13 +11,14 @@ public class FocusModePage
         _page = page;
     }
 
-    // Selectors
-    private ILocator InstructionText => _page.Locator("[data-testid='focus-instruction'], .focus-instruction, .instruction-text").First;
-    private ILocator PreviousButton => _page.Locator("button:has-text('Înapoi'), button:has-text('Previous'), button:has(svg[data-lucide='chevron-left'])").First;
-    private ILocator NextButton => _page.Locator("button:has-text('Înainte'), button:has-text('Next'), button:has(svg[data-lucide='chevron-right'])").First;
-    private ILocator CloseButton => _page.Locator("button:has-text('Închide'), button:has(svg[data-lucide='x']), [data-testid='close-focus']").First;
-    private ILocator ProgressDots => _page.Locator("[data-testid='progress-dot'], .progress-dot, .dot");
-    private ILocator StepIndicator => _page.Locator("[data-testid='step-indicator'], .step-indicator");
+    // Selectors using data-testid
+    private ILocator FocusModeOverlay => _page.Locator("[data-testid='focus-mode-overlay']");
+    private ILocator InstructionText => _page.Locator("[data-testid='focus-mode-instruction']");
+    private ILocator StepIndicator => _page.Locator("[data-testid='focus-mode-step-indicator']");
+    private ILocator PreviousButton => _page.Locator("[data-testid='focus-mode-prev']");
+    private ILocator NextButton => _page.Locator("[data-testid='focus-mode-next']");
+    private ILocator CloseButton => _page.Locator("[data-testid='focus-mode-close']");
+    private ILocator ProgressDots => _page.Locator("[data-testid='focus-mode-dot']");
 
     public async Task<string> GetCurrentInstructionAsync()
     {
@@ -55,7 +56,7 @@ public class FocusModePage
 
     public async Task<bool> IsVisibleAsync()
     {
-        return await InstructionText.IsVisibleAsync();
+        return await FocusModeOverlay.IsVisibleAsync();
     }
 
     public async Task<bool> IsPreviousButtonEnabledAsync()

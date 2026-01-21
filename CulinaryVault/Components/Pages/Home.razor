@@ -21,7 +21,8 @@
                    @bind:event="oninput"
                    @bind:after="OnSearchInput"
                    placeholder="Caută rețete..."
-                   class="search-input" />
+                   class="search-input"
+                   data-testid="search-input" />
         </div>
     </div>
     
@@ -42,7 +43,7 @@
             </div>
             <h2 class="text-xl font-bold text-gray-800 mb-2">Nicio rețetă găsită</h2>
             <p class="text-gray-500 mb-6 text-sm">Începe să creezi rețete delicioase</p>
-            <a href="/recipes/new" class="btn btn-accent">
+            <a href="/recipes/new" class="btn btn-accent" data-testid="new-recipe-button">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                 </svg>
@@ -52,7 +53,7 @@
     }
     else
     {
-        <div class="recipe-grid">
+        <div class="recipe-grid" data-testid="recipe-grid">
             @foreach (var recipe in recipes)
             {
                 <RecipeCard Recipe="recipe" OnToggleFavorite="HandleToggleFavorite" />

@@ -11,18 +11,20 @@ public class NewRecipePage
         _page = page;
     }
 
-    // Selectors
-    private ILocator TitleInput => _page.Locator("input[name='Title'], input[placeholder*='titlu'], #title").First;
-    private ILocator DescriptionInput => _page.Locator("textarea[name='Description'], textarea[placeholder*='descriere'], #description").First;
-    private ILocator ImageUrlInput => _page.Locator("input[name='ImageUrl'], input[placeholder*='imagine'], #imageUrl").First;
-    private ILocator PrepTimeInput => _page.Locator("input[name='PrepTime'], input[placeholder*='preparare'], #prepTime").First;
-    private ILocator CookTimeInput => _page.Locator("input[name='CookTime'], input[placeholder*='gătire'], #cookTime").First;
-    private ILocator ServingsInput => _page.Locator("input[name='Servings'], input[type='number'], #servings").First;
-    private ILocator CuisineTypeInput => _page.Locator("input[name='CuisineType'], input[placeholder*='bucătărie'], #cuisineType").First;
-    private ILocator DifficultySelect => _page.Locator("select[name='Difficulty'], #difficulty").First;
-    private ILocator AddIngredientButton => _page.Locator("button:has-text('Adaugă ingredient'), button:has-text('+ Ingredient')").First;
-    private ILocator AddInstructionButton => _page.Locator("button:has-text('Adaugă pas'), button:has-text('+ Pas')").First;
-    private ILocator SubmitButton => _page.Locator("button[type='submit'], button:has-text('Salvează'), button:has-text('Creează')").First;
+    // Selectors using data-testid
+    private ILocator TitleInput => _page.Locator("[data-testid='title-input']");
+    private ILocator DescriptionInput => _page.Locator("[data-testid='description-input']");
+    private ILocator ImageUrlInput => _page.Locator("[data-testid='image-url-input']");
+    private ILocator PrepTimeInput => _page.Locator("[data-testid='prep-time-input']");
+    private ILocator CookTimeInput => _page.Locator("[data-testid='cook-time-input']");
+    private ILocator ServingsInput => _page.Locator("[data-testid='servings-input']");
+    private ILocator CuisineTypeInput => _page.Locator("[data-testid='cuisine-type-input']");
+    private ILocator DifficultySelect => _page.Locator("[data-testid='difficulty-select']");
+    private ILocator AddIngredientButton => _page.Locator("[data-testid='add-ingredient-button']");
+    private ILocator AddInstructionButton => _page.Locator("[data-testid='add-instruction-button']");
+    private ILocator SubmitButton => _page.Locator("[data-testid='submit-button']");
+    private ILocator IngredientRows => _page.Locator("[data-testid='ingredient-row']");
+    private ILocator InstructionRows => _page.Locator("[data-testid='instruction-row']");
 
     public async Task NavigateAsync()
     {
@@ -37,21 +39,25 @@ public class NewRecipePage
         {
             await DescriptionInput.FillAsync(description);
         }
+        await ServingsInput.ClearAsync();
         await ServingsInput.FillAsync(servings.ToString());
     }
 
     public async Task SetPrepTimeAsync(int minutes)
     {
+        await PrepTimeInput.ClearAsync();
         await PrepTimeInput.FillAsync(minutes.ToString());
     }
 
     public async Task SetCookTimeAsync(int minutes)
     {
+        await CookTimeInput.ClearAsync();
         await CookTimeInput.FillAsync(minutes.ToString());
     }
 
     public async Task SetCuisineTypeAsync(string cuisineType)
     {
+        await CuisineTypeInput.ClearAsync();
         await CuisineTypeInput.FillAsync(cuisineType);
     }
 
@@ -71,10 +77,10 @@ public class NewRecipePage
         await _page.WaitForTimeoutAsync(200);
 
         // Get the last ingredient row
-        var ingredientRows = _page.Locator("[data-testid='ingredient-row'], .ingredient-row, .ingredient").Last;
-        await ingredientRows.Locator("input[name*='Name'], input[placeholder*='nume']").First.FillAsync(name);
-        await ingredientRows.Locator("input[name*='Amount'], input[type='number']").First.FillAsync(amount.ToString());
-        await ingredientRows.Locator("input[name*='Unit'], input[placeholder*='unitate']").First.FillAsync(unit);
+        var lastRow = IngredientRows.Last;
+        await lastRow.Locator("[data-testid='ingredient-amount']").FillAsync(amount.ToString());
+        await lastRow.Locator("[data-testid='ingredient-unit']").FillAsync(unit);
+        await lastRow.Locator("[data-testid='ingredient-name']").FillAsync(name);
     }
 
     public async Task AddInstructionAsync(string text)
@@ -83,8 +89,8 @@ public class NewRecipePage
         await _page.WaitForTimeoutAsync(200);
 
         // Get the last instruction row
-        var instructionRows = _page.Locator("[data-testid='instruction-row'], .instruction-row, .instruction").Last;
-        await instructionRows.Locator("textarea, input[type='text']").First.FillAsync(text);
+        var lastRow = InstructionRows.Last;
+        await lastRow.Locator("[data-testid='instruction-text']").FillAsync(text);
     }
 
     public async Task SubmitAsync()

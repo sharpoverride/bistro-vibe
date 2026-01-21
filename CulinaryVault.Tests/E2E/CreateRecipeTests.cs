@@ -13,7 +13,7 @@ public class CreateRecipeTests : IClassFixture<PlaywrightFixture>
         _fixture = fixture;
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact()]
     public async Task NewRecipe_PageLoads_ShowsForm()
     {
         // Arrange
@@ -28,7 +28,7 @@ public class CreateRecipeTests : IClassFixture<PlaywrightFixture>
         isVisible.Should().BeTrue();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task NewRecipe_CreateWithBasicInfo_Succeeds()
     {
         // Arrange
@@ -48,7 +48,7 @@ public class CreateRecipeTests : IClassFixture<PlaywrightFixture>
         url.Should().NotContain("/new");
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task NewRecipe_CreateWithIngredients_Succeeds()
     {
         // Arrange
@@ -69,7 +69,7 @@ public class CreateRecipeTests : IClassFixture<PlaywrightFixture>
         url.Should().Contain("/recipes/");
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task NewRecipe_CreateWithInstructions_Succeeds()
     {
         // Arrange
@@ -90,7 +90,7 @@ public class CreateRecipeTests : IClassFixture<PlaywrightFixture>
         url.Should().Contain("/recipes/");
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task NewRecipe_CreateFullRecipe_DisplaysCorrectly()
     {
         // Arrange
@@ -126,7 +126,7 @@ public class CreateRecipeTests : IClassFixture<PlaywrightFixture>
         title.Should().Contain(uniqueTitle);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task NewRecipe_CanSetPrepAndCookTime()
     {
         // Arrange
@@ -147,7 +147,7 @@ public class CreateRecipeTests : IClassFixture<PlaywrightFixture>
         url.Should().Contain("/recipes/");
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task NewRecipe_CanSetCuisineType()
     {
         // Arrange

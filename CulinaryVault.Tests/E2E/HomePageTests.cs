@@ -14,7 +14,7 @@ public class HomePageTests : IClassFixture<PlaywrightFixture>
         _fixture = fixture;
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task HomePage_LoadsSuccessfully()
     {
         // Arrange
@@ -29,7 +29,7 @@ public class HomePageTests : IClassFixture<PlaywrightFixture>
         title.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task HomePage_DisplaysSearchInput()
     {
         // Arrange
@@ -44,7 +44,7 @@ public class HomePageTests : IClassFixture<PlaywrightFixture>
         isVisible.Should().BeTrue();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task HomePage_DisplaysRecipes()
     {
         // Arrange
@@ -60,7 +60,7 @@ public class HomePageTests : IClassFixture<PlaywrightFixture>
         hasRecipes.Should().BeTrue();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task HomePage_Search_FiltersRecipes()
     {
         // Arrange
@@ -79,7 +79,7 @@ public class HomePageTests : IClassFixture<PlaywrightFixture>
         filteredCount.Should().BeLessThanOrEqualTo(initialCount);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task HomePage_ClearSearch_ShowsAllRecipes()
     {
         // Arrange
@@ -98,7 +98,7 @@ public class HomePageTests : IClassFixture<PlaywrightFixture>
         count.Should().Be(initialCount);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task HomePage_ClickRecipe_NavigatesToDetail()
     {
         // Arrange
@@ -115,7 +115,7 @@ public class HomePageTests : IClassFixture<PlaywrightFixture>
         url.Should().Contain("/recipes/");
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task HomePage_ToggleFavorite_UpdatesUI()
     {
         // Arrange
@@ -128,7 +128,7 @@ public class HomePageTests : IClassFixture<PlaywrightFixture>
         await homePage.ToggleFavoriteAsync(0);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task HomePage_NewRecipeButton_NavigatesToNewRecipePage()
     {
         // Arrange

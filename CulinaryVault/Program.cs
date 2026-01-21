@@ -22,6 +22,7 @@ builder.Services.AddDbContext<CulinaryVaultDbContext>(options =>
 
 // Register application services
 builder.Services.AddScoped<IRecipeService, RecipeService>();
+builder.Services.AddSingleton<AppState>();
 
 // Add Blazor services with interactive server rendering
 builder.Services.AddRazorComponents()

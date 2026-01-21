@@ -11,11 +11,11 @@ public class HomePage
         _page = page;
     }
 
-    // Selectors
-    private ILocator SearchInput => _page.Locator("input[placeholder*='Caută']");
-    private ILocator RecipeCards => _page.Locator("[data-testid='recipe-card'], .recipe-card, article");
-    private ILocator FavoriteButtons => _page.Locator("button:has(svg[data-lucide='heart']), button:has(.lucide-heart)");
-    private ILocator NewRecipeButton => _page.Locator("a[href='/recipes/new'], button:has-text('Adaugă')");
+    // Selectors using data-testid
+    private ILocator SearchInput => _page.Locator("[data-testid='search-input']");
+    private ILocator RecipeGrid => _page.Locator("[data-testid='recipe-grid']");
+    private ILocator RecipeCards => _page.Locator("[data-testid='recipe-card']");
+    private ILocator NewRecipeButton => _page.Locator("[data-testid='new-recipe-button'], a[href='/recipes/new']");
 
     public async Task NavigateAsync()
     {
@@ -50,29 +50,31 @@ public class HomePage
 
     public async Task ClickRecipeAsync(int index = 0)
     {
-        var cards = RecipeCards;
-        await cards.Nth(index).ClickAsync();
+        var card = RecipeCards.Nth(index);
+        var cardLink = card.Locator("[data-testid='recipe-card-link']");
+        await cardLink.ClickAsync();
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
 
     public async Task ClickRecipeByTitleAsync(string title)
     {
-        var card = _page.Locator($"text={title}").First;
-        await card.ClickAsync();
+        var card = _page.Locator($"[data-testid='recipe-card']:has([data-testid='recipe-card-title']:has-text('{title}'))").First;
+        await card.Locator("[data-testid='recipe-card-link']").ClickAsync();
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
 
     public async Task ToggleFavoriteAsync(int cardIndex = 0)
     {
         var card = RecipeCards.Nth(cardIndex);
-        var favoriteButton = card.Locator("button").First;
-        await favoriteButton.ClickAsync();
+        var favoriteButton = card.Locator("[data-testid='recipe-card-favorite']");
+        // Use force click to bypass overlay interception
+        await favoriteButton.ClickAsync(new LocatorClickOptions { Force = true });
         await _page.WaitForTimeoutAsync(300);
     }
 
     public async Task NavigateToNewRecipeAsync()
     {
-        await NewRecipeButton.ClickAsync();
+        await NewRecipeButton.First.ClickAsync();
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
 
@@ -88,7 +90,7 @@ public class HomePage
 
     public async Task WaitForRecipesToLoadAsync()
     {
-        await _page.WaitForSelectorAsync("[data-testid='recipe-card'], .recipe-card, article",
+        await _page.WaitForSelectorAsync("[data-testid='recipe-card']",
             new PageWaitForSelectorOptions { Timeout = 10000 });
     }
 }

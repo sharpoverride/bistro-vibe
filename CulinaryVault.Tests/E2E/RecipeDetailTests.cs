@@ -13,7 +13,7 @@ public class RecipeDetailTests : IClassFixture<PlaywrightFixture>
         _fixture = fixture;
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task RecipeDetail_DisplaysRecipeTitle()
     {
         // Arrange
@@ -32,7 +32,7 @@ public class RecipeDetailTests : IClassFixture<PlaywrightFixture>
         title.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task RecipeDetail_DisplaysIngredients()
     {
         // Arrange
@@ -51,7 +51,7 @@ public class RecipeDetailTests : IClassFixture<PlaywrightFixture>
         ingredientCount.Should().BeGreaterThan(0);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task RecipeDetail_DisplaysInstructions()
     {
         // Arrange
@@ -70,7 +70,7 @@ public class RecipeDetailTests : IClassFixture<PlaywrightFixture>
         instructionCount.Should().BeGreaterThan(0);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task RecipeDetail_IncreaseServings_UpdatesDisplay()
     {
         // Arrange
@@ -92,7 +92,7 @@ public class RecipeDetailTests : IClassFixture<PlaywrightFixture>
         newServings.Should().Be(initialServings + 1);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task RecipeDetail_DecreaseServings_UpdatesDisplay()
     {
         // Arrange
@@ -116,7 +116,7 @@ public class RecipeDetailTests : IClassFixture<PlaywrightFixture>
         newServings.Should().Be(initialServings - 1);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task RecipeDetail_ServingsCannotGoBelowOne()
     {
         // Arrange
@@ -139,7 +139,7 @@ public class RecipeDetailTests : IClassFixture<PlaywrightFixture>
         servings.Should().BeGreaterThanOrEqualTo(1);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task RecipeDetail_ToggleFavorite_ChangesFavoriteStatus()
     {
         // Arrange
@@ -155,7 +155,7 @@ public class RecipeDetailTests : IClassFixture<PlaywrightFixture>
         await detailPage.ToggleFavoriteAsync();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task RecipeDetail_ClickEdit_NavigatesToEditPage()
     {
         // Arrange
@@ -175,7 +175,7 @@ public class RecipeDetailTests : IClassFixture<PlaywrightFixture>
         url.Should().Contain("/edit");
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task RecipeDetail_OpenFocusMode_ShowsFocusModeOverlay()
     {
         // Arrange

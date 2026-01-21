@@ -14,7 +14,7 @@ public class FavoritesAndCuisineTests : IClassFixture<PlaywrightFixture>
         _fixture = fixture;
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FavoritesPage_LoadsSuccessfully()
     {
         // Arrange
@@ -29,7 +29,7 @@ public class FavoritesAndCuisineTests : IClassFixture<PlaywrightFixture>
         url.Should().Contain("/favorites");
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FavoritesPage_ShowsOnlyFavoriteRecipes()
     {
         // Arrange - Create a favorite recipe
@@ -55,7 +55,7 @@ public class FavoritesAndCuisineTests : IClassFixture<PlaywrightFixture>
         content.Should().Contain(uniqueTitle);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FavoritesPage_UnfavoriteRecipe_RemovesFromList()
     {
         // Arrange - Create and favorite a recipe
@@ -85,7 +85,7 @@ public class FavoritesAndCuisineTests : IClassFixture<PlaywrightFixture>
         // After unfavoriting, it should either disappear or show no favorites message
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task CuisinePage_LoadsSuccessfully()
     {
         // Arrange
@@ -100,7 +100,7 @@ public class FavoritesAndCuisineTests : IClassFixture<PlaywrightFixture>
         url.Should().Contain("/cuisine/");
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task CuisinePage_ShowsRecipesOfSpecificCuisine()
     {
         // Arrange - Create a recipe with specific cuisine
@@ -124,7 +124,7 @@ public class FavoritesAndCuisineTests : IClassFixture<PlaywrightFixture>
         content.Should().Contain(uniqueTitle);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task CuisinePage_DoesNotShowOtherCuisines()
     {
         // Arrange - Create recipes with different cuisines
@@ -156,7 +156,7 @@ public class FavoritesAndCuisineTests : IClassFixture<PlaywrightFixture>
         content.Should().NotContain(frenchTitle);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task NavigationMenu_HasFavoritesLink()
     {
         // Arrange
@@ -173,7 +173,7 @@ public class FavoritesAndCuisineTests : IClassFixture<PlaywrightFixture>
         isVisible.Should().BeTrue();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task NavigationMenu_ClickFavorites_NavigatesToFavoritesPage()
     {
         // Arrange

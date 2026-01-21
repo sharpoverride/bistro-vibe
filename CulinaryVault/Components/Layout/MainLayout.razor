@@ -1,24 +1,26 @@
 @inherits LayoutComponentBase
+@implements IDisposable
 @inject IRecipeService RecipeService
+@inject AppState AppState
 
 <div class="layout-container">
     <!-- Sidebar - Desktop only -->
-    <aside class="sidebar">
+    <aside class="sidebar @(isSidebarCollapsed ? "collapsed" : "")" data-testid="sidebar">
         <!-- Logo -->
-        <div class="sidebar-header">
+        <div class="sidebar-header" @onclick="ToggleSidebar" title="Toggle Sidebar" data-testid="sidebar-header">
             <div class="logo">
                 <div class="logo-icon">
                     <svg viewBox="0 0 24 24" fill="currentColor">
                         <path d="M8.1 13.34l2.83-2.83L3.91 3.5c-1.56 1.56-1.56 4.09 0 5.66l4.19 4.18zm6.78-1.81c1.53.71 3.68.21 5.27-1.38 1.91-1.91 2.28-4.65.81-6.12-1.46-1.46-4.2-1.1-6.12.81-1.59 1.59-2.09 3.74-1.38 5.27L3.7 19.87l1.41 1.41L12 14.41l6.88 6.88 1.41-1.41L13.41 13l1.47-1.47z"/>
                     </svg>
                 </div>
-                <span class="logo-text">Cămara Culinară</span>
+                <span class="logo-text" data-testid="sidebar-logo-text">Cămara Culinară</span>
             </div>
         </div>
         
         <!-- Navigation -->
-        <nav class="sidebar-nav">
-            <NavLink href="/" class="nav-link" Match="NavLinkMatch.All">
+        <nav class="sidebar-nav" data-testid="sidebar-nav">
+            <NavLink href="/" class="nav-link" Match="NavLinkMatch.All" data-testid="nav-link-home">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
                 </svg>
@@ -43,7 +45,14 @@
             @if (cuisineTypes != null && cuisineTypes.Count > 0)
             {
                 <div class="nav-section">
-                    <h3 class="nav-section-title">Categorii</h3>
+                    <div class="nav-section-header">
+                        <h3 class="nav-section-title">Categorii</h3>
+                        <button @onclick="RefreshCategories" class="refresh-btn" title="Reîmprospătează categoriile">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                            </svg>
+                        </button>
+                    </div>
                     @foreach (var cuisine in cuisineTypes)
                     {
                         <NavLink href="@($"/cuisine/{Uri.EscapeDataString(cuisine)}")" class="nav-link">
@@ -121,7 +130,7 @@
     }
     
     <!-- Main Content -->
-    <main class="main-content">
+    <main class="main-content" data-testid="main-content">
         @Body
     </main>
 </div>
@@ -144,11 +153,26 @@
         left: 0;
         bottom: 0;
         z-index: 40;
+        transition: width 0.3s ease;
+        overflow-x: hidden;
+    }
+
+    .sidebar.collapsed {
+        width: 80px;
     }
     
     .sidebar-header {
         padding: 1.25rem;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        cursor: pointer;
+        width: 240px; /* Ensure content stays stable during transition */
+    }
+
+    .sidebar.collapsed .sidebar-header {
+        width: 80px; 
+        padding: 1.25rem 0.5rem; /* Adjust padding */
+        display: flex;
+        justify-content: center;
     }
     
     .logo {
@@ -156,6 +180,34 @@
         align-items: center;
         gap: 0.75rem;
         text-decoration: none;
+        white-space: nowrap; /* Prevent text wrapping */
+    }
+
+    .sidebar.collapsed .logo {
+        justify-content: center;
+        padding-left: 5px;
+    }
+
+    .sidebar.collapsed .logo-text {
+        display: none;
+        opacity: 0;
+    }
+    
+    .sidebar.collapsed .nav-link span {
+        display: none;
+    }
+    
+    .sidebar.collapsed .nav-section-title {
+        display: none;
+    }
+    
+    .sidebar.collapsed .nav-link {
+        justify-content: center;
+        padding: 0.625rem 0;
+    }
+    
+    .sidebar.collapsed .sidebar-footer {
+        display: none;
     }
     
     .logo-icon {
@@ -202,7 +254,14 @@
         padding-top: 1rem;
         border-top: 1px solid rgba(255, 255, 255, 0.1);
     }
-    
+
+    .nav-section-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-right: 0.75rem;
+    }
+
     .nav-section-title {
         padding: 0.5rem 0.75rem;
         font-size: 0.6875rem;
@@ -211,6 +270,25 @@
         text-transform: uppercase;
         letter-spacing: 0.05em;
         margin: 0;
+    }
+
+    .refresh-btn {
+        padding: 0.25rem;
+        color: rgba(255, 255, 255, 0.4);
+        background: transparent;
+        border: none;
+        border-radius: 0.25rem;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .refresh-btn:hover {
+        color: #E74C3C;
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .sidebar.collapsed .refresh-btn {
+        display: none;
     }
     
     .nav-link {
@@ -358,6 +436,11 @@
             margin-left: 240px;
             padding: 2rem;
             padding-top: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar.collapsed ~ .main-content {
+            margin-left: 80px;
         }
     }
 </style>
@@ -365,14 +448,52 @@
 @code {
     private List<string>? cuisineTypes;
     private bool showMobileMenu = false;
+    private bool isSidebarCollapsed = false;
 
     protected override async Task OnInitializedAsync()
     {
         cuisineTypes = await RecipeService.GetCuisineTypesAsync();
+        AppState.OnRecipeDeleted += HandleRecipeDeleted;
+        AppState.OnRecipeCreated += HandleRecipeChanged;
+        AppState.OnRecipeUpdated += HandleRecipeChanged;
+    }
+
+    private async void HandleRecipeDeleted()
+    {
+        await InvokeAsync(async () =>
+        {
+            await RefreshCategories();
+        });
+    }
+
+    private async void HandleRecipeChanged()
+    {
+        await InvokeAsync(async () =>
+        {
+            await RefreshCategories();
+        });
     }
 
     private void ToggleMobileMenu()
     {
         showMobileMenu = !showMobileMenu;
+    }
+
+    private void ToggleSidebar()
+    {
+        isSidebarCollapsed = !isSidebarCollapsed;
+    }
+
+    private async Task RefreshCategories()
+    {
+        cuisineTypes = await RecipeService.GetCuisineTypesAsync();
+        StateHasChanged();
+    }
+
+    public void Dispose()
+    {
+        AppState.OnRecipeDeleted -= HandleRecipeDeleted;
+        AppState.OnRecipeCreated -= HandleRecipeChanged;
+        AppState.OnRecipeUpdated -= HandleRecipeChanged;
     }
 }

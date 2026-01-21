@@ -11,14 +11,15 @@ public class EditRecipePage
         _page = page;
     }
 
-    // Selectors
-    private ILocator TitleInput => _page.Locator("input[name='Title'], input[placeholder*='titlu'], #title").First;
-    private ILocator DescriptionInput => _page.Locator("textarea[name='Description'], textarea[placeholder*='descriere'], #description").First;
-    private ILocator ServingsInput => _page.Locator("input[name='Servings'], input[type='number'], #servings").First;
-    private ILocator SaveButton => _page.Locator("button[type='submit'], button:has-text('Salvează')").First;
-    private ILocator DeleteButton => _page.Locator("button:has-text('Șterge'), button:has-text('Delete')").First;
-    private ILocator ConfirmDeleteButton => _page.Locator("[data-testid='confirm-delete'], button:has-text('Confirmă'), button:has-text('Da')").First;
-    private ILocator CancelDeleteButton => _page.Locator("[data-testid='cancel-delete'], button:has-text('Anulează'), button:has-text('Nu')").First;
+    // Selectors using data-testid
+    private ILocator TitleInput => _page.Locator("[data-testid='title-input']");
+    private ILocator DescriptionInput => _page.Locator("[data-testid='description-input']");
+    private ILocator ServingsInput => _page.Locator("[data-testid='servings-input'], input[type='number'][min='1'][max='100']").First;
+    private ILocator SaveButton => _page.Locator("[data-testid='save-button']");
+    private ILocator DeleteButton => _page.Locator("[data-testid='delete-button']");
+    private ILocator DeleteDialog => _page.Locator("[data-testid='delete-dialog']");
+    private ILocator DeleteConfirmButton => _page.Locator("[data-testid='delete-confirm-button']");
+    private ILocator DeleteCancelButton => _page.Locator("[data-testid='delete-cancel-button']");
 
     public async Task NavigateAsync(Guid recipeId)
     {
@@ -63,19 +64,23 @@ public class EditRecipePage
     public async Task ClickDeleteAsync()
     {
         await DeleteButton.ClickAsync();
-        await _page.WaitForTimeoutAsync(300);
+        await _page.WaitForTimeoutAsync(200);
     }
 
     public async Task ConfirmDeleteAsync()
     {
-        await ConfirmDeleteButton.ClickAsync();
+        await DeleteButton.ClickAsync();
+        await DeleteConfirmButton.WaitForAsync();
+        await DeleteConfirmButton.ClickAsync();
         await _page.WaitForLoadStateAsync(LoadState.NetworkIdle);
     }
 
     public async Task CancelDeleteAsync()
     {
-        await CancelDeleteButton.ClickAsync();
-        await _page.WaitForTimeoutAsync(300);
+        await DeleteButton.ClickAsync();
+        await DeleteCancelButton.WaitForAsync();
+        await DeleteCancelButton.ClickAsync();
+        await _page.WaitForTimeoutAsync(200);
     }
 
     public async Task<bool> IsFormVisibleAsync()
@@ -83,8 +88,8 @@ public class EditRecipePage
         return await TitleInput.IsVisibleAsync();
     }
 
-    public async Task<bool> IsDeleteConfirmationVisibleAsync()
+    public async Task<bool> IsDeleteDialogVisibleAsync()
     {
-        return await ConfirmDeleteButton.IsVisibleAsync();
+        return await DeleteDialog.IsVisibleAsync();
     }
 }

@@ -13,7 +13,7 @@ public class EditDeleteRecipeTests : IClassFixture<PlaywrightFixture>
         _fixture = fixture;
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task EditRecipe_PageLoads_ShowsExistingData()
     {
         // Arrange
@@ -36,7 +36,7 @@ public class EditDeleteRecipeTests : IClassFixture<PlaywrightFixture>
         editTitle.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task EditRecipe_UpdateTitle_SavesSuccessfully()
     {
         // Arrange - First create a new recipe to edit
@@ -64,7 +64,7 @@ public class EditDeleteRecipeTests : IClassFixture<PlaywrightFixture>
         newTitle.Should().Contain(updatedTitle);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task EditRecipe_UpdateDescription_SavesSuccessfully()
     {
         // Arrange
@@ -92,7 +92,7 @@ public class EditDeleteRecipeTests : IClassFixture<PlaywrightFixture>
         url.Should().NotContain("/edit");
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task DeleteRecipe_ShowsConfirmationDialog()
     {
         // Arrange
@@ -110,11 +110,11 @@ public class EditDeleteRecipeTests : IClassFixture<PlaywrightFixture>
         await editPage.ClickDeleteAsync();
 
         // Assert
-        var isVisible = await editPage.IsDeleteConfirmationVisibleAsync();
+        var isVisible = await editPage.IsDeleteDialogVisibleAsync();
         isVisible.Should().BeTrue();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task DeleteRecipe_CancelDelete_StaysOnEditPage()
     {
         // Arrange
@@ -128,9 +128,7 @@ public class EditDeleteRecipeTests : IClassFixture<PlaywrightFixture>
         await homePage.ClickRecipeAsync(0);
         await detailPage.ClickEditAsync();
 
-        await editPage.ClickDeleteAsync();
-
-        // Act
+        // Act - Open dialog and cancel
         await editPage.CancelDeleteAsync();
 
         // Assert
@@ -138,7 +136,7 @@ public class EditDeleteRecipeTests : IClassFixture<PlaywrightFixture>
         isFormVisible.Should().BeTrue();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task DeleteRecipe_ConfirmDelete_RemovesRecipe()
     {
         // Arrange - Create a recipe to delete
@@ -156,8 +154,7 @@ public class EditDeleteRecipeTests : IClassFixture<PlaywrightFixture>
 
         await detailPage.ClickEditAsync();
 
-        // Act
-        await editPage.ClickDeleteAsync();
+        // Act - Open dialog and confirm delete
         await editPage.ConfirmDeleteAsync();
 
         // Assert - Should redirect to home page

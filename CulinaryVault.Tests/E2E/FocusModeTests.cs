@@ -13,7 +13,7 @@ public class FocusModeTests : IClassFixture<PlaywrightFixture>
         _fixture = fixture;
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FocusMode_DisplaysCurrentInstruction()
     {
         // Arrange
@@ -34,7 +34,7 @@ public class FocusModeTests : IClassFixture<PlaywrightFixture>
         instruction.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FocusMode_NavigateNext_ShowsNextInstruction()
     {
         // Arrange
@@ -59,7 +59,7 @@ public class FocusModeTests : IClassFixture<PlaywrightFixture>
         secondInstruction.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FocusMode_NavigatePrevious_ShowsPreviousInstruction()
     {
         // Arrange
@@ -84,7 +84,7 @@ public class FocusModeTests : IClassFixture<PlaywrightFixture>
         instruction.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FocusMode_Close_ReturnsToPreviousView()
     {
         // Arrange
@@ -106,7 +106,7 @@ public class FocusModeTests : IClassFixture<PlaywrightFixture>
         isVisible.Should().BeFalse();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FocusMode_EscapeKey_ClosesFocusMode()
     {
         // Arrange
@@ -128,7 +128,7 @@ public class FocusModeTests : IClassFixture<PlaywrightFixture>
         isVisible.Should().BeFalse();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FocusMode_ArrowKeys_NavigateSteps()
     {
         // Arrange
@@ -156,7 +156,7 @@ public class FocusModeTests : IClassFixture<PlaywrightFixture>
         afterLeft.Should().NotBeEmpty();
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FocusMode_ProgressDots_ShowCorrectCount()
     {
         // Arrange
@@ -180,7 +180,7 @@ public class FocusModeTests : IClassFixture<PlaywrightFixture>
         dotCount.Should().Be(instructionCount);
     }
 
-    [Fact(Skip = "Requires running application")]
+    [Fact]
     public async Task FocusMode_ClickProgressDot_JumpsToStep()
     {
         // Arrange
