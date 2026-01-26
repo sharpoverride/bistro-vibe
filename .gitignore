@@ -101,3 +101,8 @@ BenchmarkDotNet.Artifacts/
 # Backup & patch files
 *.bak
 *.patch
+
+# Dev container data (separate from production)
+.devcontainer/data/*.db
+.devcontainer/data/*.db-*
+!.devcontainer/data/.gitkeep

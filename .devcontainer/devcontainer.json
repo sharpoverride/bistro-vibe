@@ -1,0 +1,44 @@
+{
+  "name": "Bistro Vibe Dev Container",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/dotnet:2": {
+      "version": "10.0"
+    },
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "lts"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-dotnettools.csharp",
+        "ms-dotnettools.csdevkit",
+        "ms-dotnettools.blazorwasm-companion",
+        "ms-playwright.playwright",
+        "bradlc.vscode-tailwindcss",
+        "formulahendry.dotnet-test-explorer"
+      ],
+      "settings": {
+        "dotnet.defaultSolution": "CulinaryVault.sln",
+        "omnisharp.enableRoslynAnalyzers": true,
+        "omnisharp.enableImportCompletion": true
+      }
+    }
+  },
+  "forwardPorts": [5000, 5001, 7043],
+  "postCreateCommand": "dotnet restore && dotnet tool restore",
+  "postStartCommand": "echo 'Dev container ready! Run: dotnet run --project CulinaryVault'",
+  "mounts": [
+    "source=${localWorkspaceFolder}/.devcontainer/data,target=/workspace/data,type=bind"
+  ],
+  "containerEnv": {
+    "ASPNETCORE_ENVIRONMENT": "Development",
+    "ASPNETCORE_URLS": "http://+:5000;https://+:5001",
+    "ConnectionStrings__DefaultConnection": "Data Source=/workspace/data/culinaryvault-dev.db"
+  },
+  "remoteUser": "vscode"
+}

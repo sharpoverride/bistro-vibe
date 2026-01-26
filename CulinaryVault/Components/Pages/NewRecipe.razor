@@ -94,15 +94,32 @@
                 </button>
             </div>
 
-            <div class="space-y-3" data-testid="ingredients-list">
+            <div class="space-y-2" data-testid="ingredients-list">
                 @for (int i = 0; i < recipe.Ingredients.Count; i++)
                 {
                     var index = i;
-                    <div class="flex items-center gap-2" data-testid="ingredient-row">
-                        <input type="number" @bind="recipe.Ingredients[index].Amount" step="0.1" min="0" class="w-20 form-input" placeholder="Cant." data-testid="ingredient-amount" />
-                        <input type="text" @bind="recipe.Ingredients[index].Unit" class="w-24 form-input" placeholder="Unitate" data-testid="ingredient-unit" />
-                        <input type="text" @bind="recipe.Ingredients[index].Name" class="flex-1 form-input" placeholder="Ingredient" data-testid="ingredient-name" />
-                        <button type="button" @onclick="() => RemoveIngredient(index)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors">
+                    <div class="ingredient-row group"
+                         draggable="true"
+                         @ondragstart="@(() => HandleIngredientDragStart(index))"
+                         @ondrop="@(() => HandleIngredientDrop(index))"
+                         @ondragover:preventDefault
+                         data-testid="ingredient-row">
+
+                        <div class="drag-handle" data-testid="ingredient-drag-handle">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                            </svg>
+                        </div>
+
+                        <input type="number" @bind="recipe.Ingredients[index].Amount" step="0.1" min="0"
+                               class="form-input text-center" placeholder="Cant." data-testid="ingredient-amount" />
+                        <input type="text" @bind="recipe.Ingredients[index].Unit"
+                               class="form-input" placeholder="Unitate" data-testid="ingredient-unit" />
+                        <input type="text" @bind="recipe.Ingredients[index].Name"
+                               class="form-input ingredient-name" placeholder="Nume ingredient" data-testid="ingredient-name" />
+
+                        <button type="button" @onclick="() => RemoveIngredient(index)"
+                                class="delete-btn" data-testid="ingredient-delete">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -110,7 +127,7 @@
                     </div>
                 }
             </div>
-            
+
             @if (recipe.Ingredients.Count == 0)
             {
                 <p class="text-gray-400 text-center py-4">Niciun ingredient adăugat</p>
@@ -130,12 +147,24 @@
                 @for (int i = 0; i < recipe.Instructions.Count; i++)
                 {
                     var index = i;
-                    <div class="flex items-start gap-3" data-testid="instruction-row">
+                    <div class="flex items-start gap-3 p-2 bg-slate-50 rounded-lg border border-transparent hover:border-gray-200 transition-colors group"
+                         draggable="true"
+                         @ondragstart="@(() => HandleInstructionDragStart(index))"
+                         @ondrop="@(() => HandleInstructionDrop(index))"
+                         @ondragover:preventDefault
+                         data-testid="instruction-row">
+
+                        <div class="cursor-grab active:cursor-grabbing text-gray-400 hover:text-accent p-1 mt-2" data-testid="instruction-drag-handle">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+                            </svg>
+                        </div>
+
                         <span class="flex-shrink-0 w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center font-bold text-sm mt-2">
                             @(index + 1)
                         </span>
                         <textarea @bind="recipe.Instructions[index].Text" class="flex-1 form-input min-h-20" placeholder="Descrie pasul..." data-testid="instruction-text"></textarea>
-                        <button type="button" @onclick="() => RemoveInstruction(index)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-2">
+                        <button type="button" @onclick="() => RemoveInstruction(index)" class="p-2 text-red-500 hover:bg-red-50 rounded-lg transition-colors mt-2 opacity-50 group-hover:opacity-100" data-testid="instruction-delete">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -143,7 +172,7 @@
                     </div>
                 }
             </div>
-            
+
             @if (recipe.Instructions.Count == 0)
             {
                 <p class="text-gray-400 text-center py-4">Nicio instrucțiune adăugată</p>
@@ -178,11 +207,61 @@
         border-radius: 0.75rem;
         transition: all 0.2s;
     }
-    
+
     .form-input:focus {
         outline: none;
         border-color: #E74C3C;
         box-shadow: 0 0 0 3px rgba(231, 76, 60, 0.1);
+    }
+
+    .ingredient-row {
+        display: grid;
+        grid-template-columns: auto 70px 90px 1fr auto;
+        gap: 0.5rem;
+        align-items: center;
+        padding: 0.75rem;
+        background: #f8fafc;
+        border-radius: 0.75rem;
+        border: 1px solid transparent;
+        transition: border-color 0.2s;
+    }
+
+    .ingredient-row:hover {
+        border-color: #e5e7eb;
+    }
+
+    .ingredient-row .drag-handle {
+        cursor: grab;
+        color: #9ca3af;
+        padding: 0.25rem;
+    }
+
+    .ingredient-row .drag-handle:hover {
+        color: #E74C3C;
+    }
+
+    .ingredient-row .drag-handle:active {
+        cursor: grabbing;
+    }
+
+    .ingredient-row .delete-btn {
+        padding: 0.5rem;
+        color: #ef4444;
+        border-radius: 0.5rem;
+        opacity: 0.5;
+        transition: all 0.2s;
+    }
+
+    .ingredient-row:hover .delete-btn {
+        opacity: 1;
+    }
+
+    .ingredient-row .delete-btn:hover {
+        background: #fef2f2;
+    }
+
+    .ingredient-row .ingredient-name {
+        min-width: 0;
     }
 </style>
 
@@ -193,11 +272,13 @@
         CuisineType = "General",
         Difficulty = Difficulty.Medium
     };
-    
+
     private List<string>? existingCuisineTypes;
     private int prepTimeMinutes = 30;
     private int cookTimeMinutes = 30;
     private bool isSubmitting = false;
+    private int? draggedIngredientIndex;
+    private int? draggedInstructionIndex;
 
     protected override async Task OnInitializedAsync()
     {
@@ -247,7 +328,7 @@
         {
             recipe.PrepTime = TimeSpan.FromMinutes(prepTimeMinutes);
             recipe.CookTime = TimeSpan.FromMinutes(cookTimeMinutes);
-            
+
             var created = await RecipeService.CreateRecipeAsync(recipe);
             Navigation.NavigateTo($"/recipes/{created.Id}");
         }
@@ -255,5 +336,65 @@
         {
             isSubmitting = false;
         }
+    }
+
+    private void HandleIngredientDragStart(int index)
+    {
+        draggedIngredientIndex = index;
+    }
+
+    private void HandleIngredientDrop(int dropIndex)
+    {
+        if (draggedIngredientIndex == null) return;
+
+        var draggedIndex = draggedIngredientIndex.Value;
+        if (draggedIndex != dropIndex)
+        {
+            var item = recipe.Ingredients[draggedIndex];
+            recipe.Ingredients.RemoveAt(draggedIndex);
+
+            // Adjust drop index if removal shifted indices
+            if (dropIndex > draggedIndex) dropIndex--;
+            else if (dropIndex < 0) dropIndex = 0;
+
+            recipe.Ingredients.Insert(dropIndex, item);
+
+            // Re-assign Order
+            for (int i = 0; i < recipe.Ingredients.Count; i++)
+            {
+                recipe.Ingredients[i].Order = i + 1;
+            }
+        }
+        draggedIngredientIndex = null;
+    }
+
+    private void HandleInstructionDragStart(int index)
+    {
+        draggedInstructionIndex = index;
+    }
+
+    private void HandleInstructionDrop(int dropIndex)
+    {
+        if (draggedInstructionIndex == null) return;
+
+        var draggedIndex = draggedInstructionIndex.Value;
+        if (draggedIndex != dropIndex)
+        {
+            var item = recipe.Instructions[draggedIndex];
+            recipe.Instructions.RemoveAt(draggedIndex);
+
+            // Adjust drop index if removal shifted indices
+            if (dropIndex > draggedIndex) dropIndex--;
+            else if (dropIndex < 0) dropIndex = 0;
+
+            recipe.Instructions.Insert(dropIndex, item);
+
+            // Re-assign StepNumber
+            for (int i = 0; i < recipe.Instructions.Count; i++)
+            {
+                recipe.Instructions[i].StepNumber = i + 1;
+            }
+        }
+        draggedInstructionIndex = null;
     }
 }

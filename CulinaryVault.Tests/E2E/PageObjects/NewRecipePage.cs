@@ -127,4 +127,64 @@ public class NewRecipePage
 
         await SubmitAsync();
     }
+
+    public async Task<int> GetIngredientCountAsync()
+    {
+        return await IngredientRows.CountAsync();
+    }
+
+    public async Task<int> GetInstructionCountAsync()
+    {
+        return await InstructionRows.CountAsync();
+    }
+
+    public async Task<string> GetIngredientNameAtAsync(int index)
+    {
+        var row = IngredientRows.Nth(index);
+        return await row.Locator("[data-testid='ingredient-name']").InputValueAsync();
+    }
+
+    public async Task<string> GetInstructionTextAtAsync(int index)
+    {
+        var row = InstructionRows.Nth(index);
+        return await row.Locator("[data-testid='instruction-text']").InputValueAsync();
+    }
+
+    public async Task DragIngredientAsync(int fromIndex, int toIndex)
+    {
+        var fromRow = IngredientRows.Nth(fromIndex);
+        var toRow = IngredientRows.Nth(toIndex);
+
+        var fromHandle = fromRow.Locator("[data-testid='ingredient-drag-handle']");
+        var toHandle = toRow.Locator("[data-testid='ingredient-drag-handle']");
+
+        await fromHandle.DragToAsync(toHandle);
+        await _page.WaitForTimeoutAsync(200);
+    }
+
+    public async Task DragInstructionAsync(int fromIndex, int toIndex)
+    {
+        var fromRow = InstructionRows.Nth(fromIndex);
+        var toRow = InstructionRows.Nth(toIndex);
+
+        var fromHandle = fromRow.Locator("[data-testid='instruction-drag-handle']");
+        var toHandle = toRow.Locator("[data-testid='instruction-drag-handle']");
+
+        await fromHandle.DragToAsync(toHandle);
+        await _page.WaitForTimeoutAsync(200);
+    }
+
+    public async Task RemoveIngredientAtAsync(int index)
+    {
+        var row = IngredientRows.Nth(index);
+        await row.Locator("[data-testid='ingredient-delete']").ClickAsync();
+        await _page.WaitForTimeoutAsync(200);
+    }
+
+    public async Task RemoveInstructionAtAsync(int index)
+    {
+        var row = InstructionRows.Nth(index);
+        await row.Locator("[data-testid='instruction-delete']").ClickAsync();
+        await _page.WaitForTimeoutAsync(200);
+    }
 }

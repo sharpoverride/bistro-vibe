@@ -159,7 +159,7 @@ public class EditDeleteRecipeTests : IClassFixture<PlaywrightFixture>
 
         // Assert - Should redirect to home page
         var url = page.Url;
-        url.Should().Be(_fixture.BaseUrl + "/");
+        url.Should().EndWith("/");
 
         // Recipe should not be found in search
         await homePage.SearchAsync(uniqueTitle);

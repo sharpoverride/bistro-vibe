@@ -166,4 +166,139 @@ public class CreateRecipeTests : IClassFixture<PlaywrightFixture>
         var url = page.Url;
         url.Should().Contain("/recipes/");
     }
+
+    [Fact]
+    public async Task NewRecipe_CanDragReorderIngredients()
+    {
+        // Arrange
+        var page = await _fixture.CreatePageAsync();
+        var newRecipePage = new NewRecipePage(page);
+
+        await newRecipePage.NavigateAsync();
+
+        // Add three ingredients
+        await newRecipePage.AddIngredientAsync("First Ingredient", 1, "cup");
+        await newRecipePage.AddIngredientAsync("Second Ingredient", 2, "tbsp");
+        await newRecipePage.AddIngredientAsync("Third Ingredient", 3, "g");
+
+        // Verify initial order
+        var firstBefore = await newRecipePage.GetIngredientNameAtAsync(0);
+        firstBefore.Should().Be("First Ingredient");
+
+        // Act - Drag first ingredient to third position
+        await newRecipePage.DragIngredientAsync(0, 2);
+
+        // Assert - First ingredient should now be at position 2
+        var firstAfter = await newRecipePage.GetIngredientNameAtAsync(0);
+        firstAfter.Should().Be("Second Ingredient");
+    }
+
+    [Fact]
+    public async Task NewRecipe_CanDragReorderInstructions()
+    {
+        // Arrange
+        var page = await _fixture.CreatePageAsync();
+        var newRecipePage = new NewRecipePage(page);
+
+        await newRecipePage.NavigateAsync();
+
+        // Add three instructions
+        await newRecipePage.AddInstructionAsync("Step One");
+        await newRecipePage.AddInstructionAsync("Step Two");
+        await newRecipePage.AddInstructionAsync("Step Three");
+
+        // Verify initial order
+        var firstBefore = await newRecipePage.GetInstructionTextAtAsync(0);
+        firstBefore.Should().Be("Step One");
+
+        // Act - Drag first instruction to third position
+        await newRecipePage.DragInstructionAsync(0, 2);
+
+        // Assert - First instruction should now be at position 2
+        var firstAfter = await newRecipePage.GetInstructionTextAtAsync(0);
+        firstAfter.Should().Be("Step Two");
+    }
+
+    [Fact]
+    public async Task NewRecipe_CanRemoveIngredient()
+    {
+        // Arrange
+        var page = await _fixture.CreatePageAsync();
+        var newRecipePage = new NewRecipePage(page);
+
+        await newRecipePage.NavigateAsync();
+
+        // Add two ingredients
+        await newRecipePage.AddIngredientAsync("Keep Me", 1, "cup");
+        await newRecipePage.AddIngredientAsync("Delete Me", 2, "tbsp");
+
+        var countBefore = await newRecipePage.GetIngredientCountAsync();
+        countBefore.Should().Be(2);
+
+        // Act - Remove the second ingredient
+        await newRecipePage.RemoveIngredientAtAsync(1);
+
+        // Assert
+        var countAfter = await newRecipePage.GetIngredientCountAsync();
+        countAfter.Should().Be(1);
+
+        var remainingName = await newRecipePage.GetIngredientNameAtAsync(0);
+        remainingName.Should().Be("Keep Me");
+    }
+
+    [Fact]
+    public async Task NewRecipe_CanRemoveInstruction()
+    {
+        // Arrange
+        var page = await _fixture.CreatePageAsync();
+        var newRecipePage = new NewRecipePage(page);
+
+        await newRecipePage.NavigateAsync();
+
+        // Add two instructions
+        await newRecipePage.AddInstructionAsync("Keep This Step");
+        await newRecipePage.AddInstructionAsync("Delete This Step");
+
+        var countBefore = await newRecipePage.GetInstructionCountAsync();
+        countBefore.Should().Be(2);
+
+        // Act - Remove the second instruction
+        await newRecipePage.RemoveInstructionAtAsync(1);
+
+        // Assert
+        var countAfter = await newRecipePage.GetInstructionCountAsync();
+        countAfter.Should().Be(1);
+
+        var remainingText = await newRecipePage.GetInstructionTextAtAsync(0);
+        remainingText.Should().Be("Keep This Step");
+    }
+
+    [Fact]
+    public async Task NewRecipe_ReorderedIngredients_PersistAfterSave()
+    {
+        // Arrange
+        var page = await _fixture.CreatePageAsync();
+        var newRecipePage = new NewRecipePage(page);
+        var detailPage = new RecipeDetailPage(page);
+        var uniqueTitle = $"Reorder Recipe {Guid.NewGuid():N}";
+
+        await newRecipePage.NavigateAsync();
+        await newRecipePage.FillBasicInfoAsync(uniqueTitle, "Description", 4);
+
+        // Add three ingredients
+        await newRecipePage.AddIngredientAsync("Alpha", 1, "cup");
+        await newRecipePage.AddIngredientAsync("Beta", 2, "tbsp");
+        await newRecipePage.AddIngredientAsync("Gamma", 3, "g");
+
+        // Reorder: move first to last
+        await newRecipePage.DragIngredientAsync(0, 2);
+
+        // Act - Save the recipe
+        await newRecipePage.SubmitAsync();
+
+        // Assert - Should redirect to detail page
+        var url = page.Url;
+        url.Should().Contain("/recipes/");
+        url.Should().NotContain("/new");
+    }
 }
