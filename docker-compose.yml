@@ -2,39 +2,34 @@ services:
   culinary-vault:
     build: .
     container_name: culinary-vault
-    ports:
-      - "5031:8080"
+    network_mode: service:tailscale
     volumes:
       - culinary_database:/app/data
       - culinary_uploads:/app/wwwroot/uploads
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ConnectionStrings__DefaultConnection=Data Source=/app/data/culinaryvault.db
-    networks:
-      - culinary-network
+    depends_on:
+      - tailscale
     restart: always
 
   tailscale:
     image: tailscale/tailscale:latest
-    container_name: culinary-tailscale
-    hostname: culinary-vault
+    container_name: bistro-tailscale
+    hostname: bistro
     volumes:
       - tailscale-state:/var/lib/tailscale
       - /dev/net/tun:/dev/net/tun
+      - ./tailscale:/config
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
     environment:
-      - TS_AUTHKEY=${TS_AUTHKEY:-}
+      - TS_AUTHKEY=${TS_AUTHKEY}
       - TS_STATE_DIR=/var/lib/tailscale
-      - TS_USERSPACE=false
-    networks:
-      - culinary-network
+      - TS_EXTRA_ARGS=--hostname=bistro
+      - TS_SERVE_CONFIG=/config/serve.json
     restart: unless-stopped
-
-networks:
-  culinary-network:
-    driver: bridge
 
 volumes:
   culinary_database:
