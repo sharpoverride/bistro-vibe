@@ -2,6 +2,8 @@
 @inject IRecipeService RecipeService
 @inject NavigationManager Navigation
 @inject AppState AppState
+@inject IJSRuntime JSRuntime
+@implements IAsyncDisposable
 
 <PageTitle>Editează Rețeta - Cămara Culinară</PageTitle>
 
@@ -119,9 +121,11 @@ else
                              draggable="true"
                              @ondragstart="@(() => HandleIngredientDragStart(index))"
                              @ondrop="@(() => HandleIngredientDrop(index))"
-                             @ondragover:preventDefault>
-                            
-                            <div class="drag-handle">
+                             @ondragover:preventDefault
+                             data-drag-item="ingredient"
+                             data-drag-index="@index">
+
+                            <div class="drag-handle" data-drag-handle>
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
                                 </svg>
@@ -167,9 +171,11 @@ else
                              draggable="true"
                              @ondragstart="@(() => HandleInstructionDragStart(index))"
                              @ondrop="@(() => HandleInstructionDrop(index))"
-                             @ondragover:preventDefault>
-                            
-                            <div class="cursor-grab active:cursor-grabbing text-gray-400 hover:text-accent p-1 mt-2">
+                             @ondragover:preventDefault
+                             data-drag-item="instruction"
+                             data-drag-index="@index">
+
+                            <div class="cursor-grab active:cursor-grabbing text-gray-400 hover:text-accent p-1 mt-2" data-drag-handle>
                                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
                                 </svg>
@@ -304,6 +310,34 @@ else
     .ingredient-row .ingredient-name {
         min-width: 0;
     }
+
+    /* Touch-friendly drag handle styles */
+    .drag-handle {
+        touch-action: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+        min-width: 32px;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    @@media (pointer: coarse) {
+        .drag-handle,
+        [data-drag-handle] {
+            min-width: 44px;
+            min-height: 44px;
+        }
+    }
+
+    [data-drag-handle] {
+        touch-action: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
 </style>
 
 @code {
@@ -318,6 +352,7 @@ else
     private bool showDeleteDialog = false;
     private int? draggedIngredientIndex;
     private int? draggedInstructionIndex;
+    private DotNetObjectReference<EditRecipe>? dotNetRef;
 
     protected override async Task OnInitializedAsync()
     {
@@ -328,6 +363,69 @@ else
             cookTimeMinutes = (int)recipe.CookTime.TotalMinutes;
         }
         existingCuisineTypes = await RecipeService.GetCuisineTypesAsync();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            dotNetRef = DotNetObjectReference.Create(this);
+            await JSRuntime.InvokeVoidAsync("touchDrag.initialize", dotNetRef);
+        }
+    }
+
+    [JSInvokable]
+    public void HandleTouchDrop(string itemType, int fromIndex, int toIndex)
+    {
+        if (recipe == null) return;
+
+        if (itemType == "ingredient")
+        {
+            if (fromIndex >= 0 && fromIndex < recipe.Ingredients.Count &&
+                toIndex >= 0 && toIndex <= recipe.Ingredients.Count)
+            {
+                var item = recipe.Ingredients[fromIndex];
+                recipe.Ingredients.RemoveAt(fromIndex);
+                if (toIndex > fromIndex) toIndex--;
+                if (toIndex < 0) toIndex = 0;
+                if (toIndex > recipe.Ingredients.Count) toIndex = recipe.Ingredients.Count;
+                recipe.Ingredients.Insert(toIndex, item);
+
+                for (int i = 0; i < recipe.Ingredients.Count; i++)
+                {
+                    recipe.Ingredients[i].Order = i + 1;
+                }
+            }
+        }
+        else if (itemType == "instruction")
+        {
+            if (fromIndex >= 0 && fromIndex < recipe.Instructions.Count &&
+                toIndex >= 0 && toIndex <= recipe.Instructions.Count)
+            {
+                var item = recipe.Instructions[fromIndex];
+                recipe.Instructions.RemoveAt(fromIndex);
+                if (toIndex > fromIndex) toIndex--;
+                if (toIndex < 0) toIndex = 0;
+                if (toIndex > recipe.Instructions.Count) toIndex = recipe.Instructions.Count;
+                recipe.Instructions.Insert(toIndex, item);
+
+                for (int i = 0; i < recipe.Instructions.Count; i++)
+                {
+                    recipe.Instructions[i].StepNumber = i + 1;
+                }
+            }
+        }
+
+        StateHasChanged();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (dotNetRef != null)
+        {
+            await JSRuntime.InvokeVoidAsync("touchDrag.dispose");
+            dotNetRef.Dispose();
+        }
     }
 
     private void AddIngredient()

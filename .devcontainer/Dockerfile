@@ -1,6 +1,9 @@
 # Dev container for Bistro Vibe / Cămara Culinară
 FROM mcr.microsoft.com/devcontainers/dotnet:1-10.0
 
+# Remove expired Yarn GPG key source (inherited from base image)
+RUN rm -f /etc/apt/sources.list.d/yarn.list || true
+
 # Install Playwright dependencies for E2E testing
 RUN apt-get update && apt-get install -y \
     libnss3 \
